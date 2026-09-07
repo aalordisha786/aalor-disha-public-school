@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Profile | AALOR DISHA PUBLIC SCHOOL</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+:root{--navy:#17385f;--navy2:#28557f;--bg:#f4f7fb;--border:#d9e4ef;--muted:#64748b}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:#172033}
+.top{height:62px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+.brand{display:flex;align-items:center;gap:10px}.logo{width:40px;height:40px;border-radius:50%;background:#fff;color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px}
+.brand strong{display:block;font-size:15px}.brand small{font-size:10px}
+.actions{display:flex;gap:8px}.actions button{background:transparent;border:1px solid #8ba4bd;color:#fff;border-radius:7px;padding:7px 11px;font-weight:700;cursor:pointer}
+main{max-width:900px;margin:26px auto;padding:0 16px}
+.hero{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-radius:15px;padding:22px;box-shadow:0 10px 26px rgba(23,56,95,.15)}
+.hero h1{font-size:22px;margin:0 0 5px}.hero p{margin:0;font-size:12px;color:#dce9f7}
+.panel{background:#fff;border:1px solid var(--border);border-radius:15px;margin-top:16px;padding:22px;box-shadow:0 6px 18px rgba(15,23,42,.04)}
+.profile-head{display:flex;align-items:center;gap:15px;padding-bottom:18px;border-bottom:1px solid var(--border)}
+.avatar{width:58px;height:58px;border-radius:50%;background:#edf4fb;color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:25px}
+.profile-head h2{margin:0;color:var(--navy);font-size:20px}.profile-head p{margin:5px 0 0;color:var(--muted);font-size:12px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 22px;margin-top:20px}
+.item{border:1px solid #e1e9f1;border-radius:10px;padding:12px 14px;min-height:62px}
+.item span{display:block;font-size:10px;color:var(--muted);margin-bottom:6px}.item strong{font-size:13px;color:#172033;word-break:break-word}
+.full{grid-column:1/-1}
+.note{margin-top:18px;padding:12px 14px;background:#f6f9fc;border:1px solid var(--border);border-radius:9px;color:var(--muted);font-size:11px;line-height:1.5}
+.error{display:none;margin-top:15px;padding:11px;background:#fff1f2;color:#b91c1c;border:1px solid #fecaca;border-radius:8px;font-size:12px}
+.loading{position:fixed;inset:0;background:rgba(244,247,251,.95);display:flex;align-items:center;justify-content:center;color:var(--navy);font-weight:700;z-index:10}
+footer{text-align:center;color:#8291a4;font-size:11px;margin-top:22px}
+@media(max-width:620px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.top{padding:0 10px}.brand strong{font-size:12px}.actions button{font-size:10px;padding:6px 8px}}
+</style>
+</head>
+<body>
+<div id="loading" class="loading">Loading your profile...</div>
+<header class="top">
+ <div class="brand"><div class="logo">ADPS</div><div><strong>AALOR DISHA PUBLIC SCHOOL</strong><small>Teacher Portal • My Profile</small></div></div>
+ <div class="actions"><button onclick="location.href='teacher-dashboard.html'">Dashboard</button><button id="logout">Logout</button></div>
+</header>
+
+<main>
+ <section class="hero"><h1 id="title">My Profile</h1><p>Your personal teacher information is shown here.</p></section>
+ <div id="error" class="error"></div>
+
+ <section class="panel">
+  <div class="profile-head">
+   <div class="avatar">👤</div>
+   <div><h2 id="nameTop">—</h2><p id="subTop">Teacher ID —</p></div>
+  </div>
+
+  <div class="grid">
+   <div class="item"><span>Teacher ID</span><strong id="teacher_id">—</strong></div>
+   <div class="item"><span>Teacher Name</span><strong id="teacher_name">—</strong></div>
+   <div class="item"><span>Date of Birth</span><strong id="date_of_birth">—</strong></div>
+   <div class="item"><span>Gender</span><strong id="gender">—</strong></div>
+   <div class="item"><span>Phone</span><strong id="phone">—</strong></div>
+   <div class="item"><span>Email</span><strong id="email">—</strong></div>
+   <div class="item"><span>Joining Date</span><strong id="joining_date">—</strong></div>
+   <div class="item"><span>Qualification</span><strong id="qualification">—</strong></div>
+   <div class="item"><span>Designation</span><strong id="designation">—</strong></div>
+   <div class="item"><span>Status</span><strong id="status">—</strong></div>
+   <div class="item full"><span>Address</span><strong id="address">—</strong></div>
+  </div>
+  <div class="note">This page is view-only. Teacher master information is maintained by the school administrator.</div>
+ </section>
+ <footer>AALOR DISHA PUBLIC SCHOOL • Teacher ERP Portal</footer>
+</main>
+
+<script>
+const db=supabase.createClient(
+ 'https://zoickuxjrwjowhotzkue.supabase.co',
+ 'sb_publishable__i970SfH3NT8Iv_CsIYsfg_v9It3loN'
+);
+
+const loading=document.getElementById('loading');
+const errorBox=document.getElementById('error');
+
+function fmtDate(v){
+ if(!v)return '—';
+ const d=new Date(v+'T00:00:00');
+ return isNaN(d)?v:d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+}
+function val(v){return v===null||v===undefined||String(v).trim()===''?'—':v}
+function fail(msg){errorBox.textContent=msg;errorBox.style.display='block';loading.style.display='none'}
+
+async function init(){
+ const {data:{session}}=await db.auth.getSession();
+ if(!session){location.href='teacher-login.html';return}
+
+ const {data:p,error:pe}=await db.from('user_profiles')
+  .select('role,status,teacher_id').eq('user_id',session.user.id).single();
+
+ if(pe||!p||p.role!=='TEACHER'||p.status!=='Active'||!p.teacher_id){
+  await db.auth.signOut(); location.href='teacher-login.html'; return;
+ }
+
+ const {data:t,error:te}=await db.from('teachers')
+  .select('teacher_id,teacher_name,date_of_birth,gender,phone,email,address,joining_date,qualification,designation,status')
+  .eq('teacher_id',p.teacher_id).single();
+
+ if(te||!t){fail('Your teacher profile could not be loaded. Please contact the school administrator.');return}
+
+ document.getElementById('title').textContent=(t.teacher_name||'Teacher')+' - My Profile';
+ document.getElementById('nameTop').textContent=val(t.teacher_name);
+ document.getElementById('subTop').textContent='Teacher ID '+val(t.teacher_id)+' • '+val(t.designation);
+
+ const values={
+  teacher_id:t.teacher_id,teacher_name:t.teacher_name,
+  date_of_birth:fmtDate(t.date_of_birth),gender:t.gender,phone:t.phone,email:t.email,
+  joining_date:fmtDate(t.joining_date),qualification:t.qualification,
+  designation:t.designation,status:t.status,address:t.address
+ };
+ Object.entries(values).forEach(([id,v])=>document.getElementById(id).textContent=val(v));
+ loading.style.display='none';
+}
+
+document.getElementById('logout').onclick=async()=>{
+ await db.auth.signOut();sessionStorage.clear();location.href='teacher-login.html';
+};
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fees | AALOR DISHA PUBLIC SCHOOL</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Arial,sans-serif;background:#f5f7fb;color:#172033}
+    .topbar{background:#17385f;color:#fff;padding:18px 28px;display:flex;justify-content:space-between;align-items:center}
+    .school-name{font-size:20px;font-weight:700}.topbar p{font-size:12px;margin-top:4px;opacity:.9}
+    .back-btn{background:#fff;color:#17385f;text-decoration:none;padding:10px 16px;border-radius:6px;font-weight:700;font-size:13px}
+    .container{max-width:1200px;margin:30px auto;padding:0 20px}
+    .page-header{margin-bottom:20px}.page-header h1{color:#0c3564;margin-bottom:6px}.page-header p{color:#667085;font-size:14px}
+    .notice{display:none;margin-bottom:16px;padding:13px 16px;border-radius:9px;font-size:14px;font-weight:600}
+    .notice.success{display:block;background:#ecfdf3;color:#166534;border:1px solid #bbf7d0}
+    .notice.error{display:block;background:#fff1f2;color:#b91c1c;border:1px solid #fecaca}
+    .toolbar{background:#fff;border:1px solid #e2e7ef;border-radius:14px;padding:18px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+    .field{display:flex;flex-direction:column;gap:7px}.field label{font-size:13px;font-weight:700;color:#334155}
+    .field input,.field select{min-height:44px;padding:10px 12px;border:1px solid #d7dee8;border-radius:9px;background:#fff;font-size:14px}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+    .stat{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:18px 20px;display:flex;justify-content:space-between;align-items:center}
+    .stat span{font-size:13px;color:#64748b;font-weight:600}.stat strong{font-size:25px;color:#123b68}
+    .table-card{background:#fff;border:1px solid #e2e7ef;border-radius:12px;overflow-x:auto}
+    table{width:100%;min-width:1050px;border-collapse:collapse}th{background:#f0f4f8;color:#17385f;text-align:left;padding:14px;font-size:13px}
+    td{padding:12px 14px;border-top:1px solid #edf0f4;font-size:14px}
+    .badge{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700}
+    .paid{background:#dcfce7;color:#166534}.partial{background:#fef3c7;color:#92400e}.pending{background:#fee2e2;color:#991b1b}
+    .pay-btn{border:none;background:#17385f;color:#fff;padding:8px 12px;border-radius:7px;font-weight:700;cursor:pointer}
+    .loading{text-align:center;padding:32px;color:#667085}
+    .modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,.58);z-index:50;align-items:center;justify-content:center;padding:20px}
+    .modal-box{background:#fff;width:min(620px,100%);border-radius:16px;padding:24px;box-shadow:0 22px 55px rgba(0,0,0,.25)}
+    .modal-box h2{color:#17385f;margin-bottom:18px}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.full{grid-column:1/-1}
+    .actions{display:flex;gap:10px;margin-top:20px}
+    .primary,.secondary{padding:11px 17px;border-radius:8px;font-weight:700;cursor:pointer}
+    .primary{border:none;background:#17385f;color:#fff}.secondary{border:1px solid #cfd6df;background:#fff;color:#17385f}
+    button:disabled{opacity:.6;cursor:not-allowed}
+    @media(max-width:850px){.toolbar,.stats{grid-template-columns:1fr 1fr}}
+    @media(max-width:600px){.toolbar,.stats,.form-grid{grid-template-columns:1fr}.full{grid-column:auto}}
+  </style>
+</head>
+<body>
+<header class="topbar">
+  <div><div class="school-name">AALOR DISHA PUBLIC SCHOOL</div><p>School ERP Administration</p></div>
+  <a href="admin-dashboard.html" class="back-btn">← Dashboard</a>
+</header>
+
+<main class="container">
+  <div class="page-header"><h1>Fees</h1><p>Track student monthly fee payments, pending amounts and payment status.</p></div>
+  <div id="notice" class="notice"></div>
+
+  <section class="toolbar">
+    <div class="field"><label>Fee Month</label><input type="month" id="monthFilter"></div>
+    <div class="field"><label>Class</label><select id="classFilter"><option value="All">All Classes</option></select></div>
+    <div class="field"><label>Status</label><select id="statusFilter"><option value="All">All Status</option><option>Paid</option><option>Partial</option><option>Pending</option></select></div>
+    <div class="field"><label>Search Student</label><input id="searchInput" placeholder="Name or roll no..."></div>
+  </section>
+
+  <section class="stats">
+    <div class="stat"><span>Total Due</span><strong id="totalDue">₹0</strong></div>
+    <div class="stat"><span>Collected</span><strong id="totalPaid">₹0</strong></div>
+    <div class="stat"><span>Pending</span><strong id="totalPending">₹0</strong></div>
+    <div class="stat"><span>Students</span><strong id="studentCount">0</strong></div>
+  </section>
+
+  <section class="table-card">
+    <table>
+      <thead><tr><th>Roll No.</th><th>Student Name</th><th>Class</th><th>Month</th><th>Due</th><th>Paid</th><th>Pending</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody id="feeBody"><tr><td colspan="9" class="loading">Loading fees...</td></tr></tbody>
+    </table>
+  </section>
+</main>
+
+<div id="paymentModal" class="modal">
+  <div class="modal-box">
+    <h2>Record Fee Payment</h2>
+    <form id="paymentForm">
+      <input type="hidden" id="studentId">
+      <div class="form-grid">
+        <div class="field full"><label>Student</label><input id="studentDisplay" readonly></div>
+        <div class="field"><label>Fee Month</label><input id="paymentMonth" readonly></div>
+        <div class="field"><label>Monthly Fee</label><input type="number" id="amountDue" min="0" step="0.01" required></div>
+        <div class="field"><label>Total Paid So Far</label><input type="number" id="alreadyPaid" min="0" step="0.01"></div>
+        <div class="field"><label>Remaining Due</label><input type="number" id="remainingDue" min="0" step="0.01" readonly></div>
+        <div class="field full"><label>Payment Received Now</label><input type="number" id="amountPaid" min="0" step="0.01" placeholder="Enter new payment amount"></div>
+        <div class="field"><label>Payment Date</label><input type="date" id="paymentDate" required></div>
+        <div class="field"><label>Payment Mode</label><select id="paymentMode"><option>Cash</option><option>UPI</option><option>Bank Transfer</option><option>Cheque</option></select></div>
+        <div class="field full"><label>Remarks</label><input id="remarks" placeholder="Optional remarks"></div>
+      </div>
+      <div class="actions"><button class="primary" id="saveBtn" type="submit">Save Payment</button><button class="secondary" id="cancelBtn" type="button">Cancel</button></div>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL="https://zoickuxjrwjowhotzkue.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable__i970SfH3NT8Iv_CsIYsfg_v9It3loN";
+const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+
+const feeBody=document.getElementById("feeBody"),monthFilter=document.getElementById("monthFilter"),
+classFilter=document.getElementById("classFilter"),statusFilter=document.getElementById("statusFilter"),
+searchInput=document.getElementById("searchInput"),paymentModal=document.getElementById("paymentModal"),
+paymentForm=document.getElementById("paymentForm"),notice=document.getElementById("notice");
+let students=[],payments=[],structures=[];
+
+function today(){const d=new Date();return new Date(d-d.getTimezoneOffset()*60000).toISOString().slice(0,10)}
+monthFilter.value=today().slice(0,7); document.getElementById("paymentDate").value=today();
+
+function showNotice(m,t="success"){notice.textContent=m;notice.className=`notice ${t}`;setTimeout(()=>{notice.className="notice";notice.textContent=""},3500)}
+function money(v){return "₹"+Number(v||0).toLocaleString("en-IN",{maximumFractionDigits:2})}
+function academicYearForMonth(m){const y=Number(m.slice(0,4)),mo=Number(m.slice(5,7));return mo>=4?`${y}-${String(y+1).slice(-2)}`:`${y-1}-${String(y).slice(-2)}`}
+function monthLabel(m){return new Date(m+"-01T00:00:00").toLocaleDateString("en-IN",{month:"short",year:"numeric"})}
+
+async function checkAdmin(){
+ const {data:{session}}=await supabaseClient.auth.getSession();
+ if(!session){location.href="erp-login.html";return false}
+ const {data:p,error}=await supabaseClient.from("user_profiles").select("role,status").eq("user_id",session.user.id).single();
+ if(error||!p||p.role!=="ADMIN"||p.status!=="Active"){await supabaseClient.auth.signOut();location.href="erp-login.html";return false}
+ return true;
+}
+
+async function loadClasses(){
+ const {data,error}=await supabaseClient.from("classes").select("class_id,class_name,section").eq("status","Active").order("class_id");
+ if(error)return console.error(error);
+ (data||[]).forEach(c=>{const o=document.createElement("option");o.value=c.class_id;o.textContent=`${c.class_name} ${c.section||""}`.trim();classFilter.appendChild(o)})
+}
+
+async function loadData(){
+ feeBody.innerHTML='<tr><td colspan="9" class="loading">Loading fees...</td></tr>';
+ const ay=academicYearForMonth(monthFilter.value);
+ const [{data:s,error:se},{data:p,error:pe},{data:f,error:fe}]=await Promise.all([
+   supabaseClient.from("students").select("student_id,student_name,roll_no,class_id,status,classes(class_name,section)").eq("status","Active").order("student_id"),
+   supabaseClient.from("fee_payments").select("*").eq("fee_month",monthFilter.value).eq("academic_year",ay),
+   supabaseClient.from("fee_structure").select("class_id,monthly_fee,academic_year,status").eq("academic_year",ay).eq("status","Active")
+ ]);
+ if(se||pe||fe){console.error(se||pe||fe);feeBody.innerHTML='<tr><td colspan="9" class="loading">Could not load fee data.</td></tr>';return}
+ students=s||[];payments=p||[];structures=f||[];render();
+}
+
+function recordFor(st){
+ const payment=payments.find(p=>String(p.student_id)===String(st.student_id));
+ const structure=structures.find(f=>String(f.class_id)===String(st.class_id));
+ const due=Number(payment?.amount_due ?? structure?.monthly_fee ?? 0);
+ const paid=Number(payment?.amount_paid||0);
+ const pending=Math.max(due-paid,0);
+ let status=payment?.payment_status;
+ if(!status) status=paid>=due&&due>0?"Paid":paid>0?"Partial":"Pending";
+ return {payment,due,paid,pending,status};
+}
+
+function render(){
+ const q=searchInput.value.trim().toLowerCase(),cls=classFilter.value,stf=statusFilter.value;
+ const rows=students.map(st=>({st,...recordFor(st)})).filter(x=>{
+   const matchClass=cls==="All"||String(x.st.class_id)===cls;
+   const matchSearch=(x.st.student_name||"").toLowerCase().includes(q)||String(x.st.roll_no||"").toLowerCase().includes(q);
+   return matchClass&&matchSearch&&(stf==="All"||x.status===stf);
+ });
+ feeBody.innerHTML="";
+ if(!rows.length) feeBody.innerHTML='<tr><td colspan="9" class="loading">No fee records found.</td></tr>';
+ rows.forEach(x=>{
+   const c=x.st.classes?`${x.st.classes.class_name} ${x.st.classes.section||""}`.trim():"-";
+   const tr=document.createElement("tr");
+   tr.innerHTML=`<td>${x.st.roll_no||"-"}</td><td>${x.st.student_name||"-"}</td><td>${c}</td><td>${monthLabel(monthFilter.value)}</td><td>${money(x.due)}</td><td>${money(x.paid)}</td><td>${money(x.pending)}</td><td><span class="badge ${x.status.toLowerCase()}">${x.status}</span></td><td><button class="pay-btn" onclick="openPayment(${x.st.student_id})">${x.payment?"Update":"Pay"}</button></td>`;
+   feeBody.appendChild(tr);
+ });
+ document.getElementById("totalDue").textContent=money(rows.reduce((a,x)=>a+x.due,0));
+ document.getElementById("totalPaid").textContent=money(rows.reduce((a,x)=>a+x.paid,0));
+ document.getElementById("totalPending").textContent=money(rows.reduce((a,x)=>a+x.pending,0));
+ document.getElementById("studentCount").textContent=rows.length;
+}
+
+function openPayment(id){
+ const st=students.find(s=>s.student_id===id),r=recordFor(st);
+ document.getElementById("studentId").value=id;
+ document.getElementById("studentDisplay").value=`${st.student_name} (Roll ${st.roll_no||"-"})`;
+ document.getElementById("paymentMonth").value=monthLabel(monthFilter.value);
+ document.getElementById("amountDue").value=r.due;
+ document.getElementById("alreadyPaid").value=r.paid;
+ document.getElementById("remainingDue").value=r.pending;
+ document.getElementById("amountPaid").value="";
+ document.getElementById("paymentDate").value=r.payment?.payment_date||today();
+ document.getElementById("paymentMode").value=r.payment?.payment_mode||"Cash";
+ document.getElementById("remarks").value=r.payment?.remarks||"";
+ paymentModal.style.display="flex";
+}
+window.openPayment=openPayment;
+
+function refreshRemainingDue(){
+ const due=Number(document.getElementById("amountDue").value||0);
+ const paidSoFar=Number(document.getElementById("alreadyPaid").value||0);
+ document.getElementById("remainingDue").value=Math.max(due-paidSoFar,0);
+}
+document.getElementById("alreadyPaid").addEventListener("input",refreshRemainingDue);
+document.getElementById("amountDue").addEventListener("input",refreshRemainingDue);
+document.getElementById("cancelBtn").onclick=()=>paymentModal.style.display="none";
+
+paymentForm.addEventListener("submit",async e=>{
+ e.preventDefault();
+ const studentId=Number(document.getElementById("studentId").value),st=students.find(s=>s.student_id===studentId),old=payments.find(p=>String(p.student_id)===String(studentId));
+ const due=Number(document.getElementById("amountDue").value);
+ const paidSoFar=Number(document.getElementById("alreadyPaid").value||0);
+ const newPayment=Number(document.getElementById("amountPaid").value||0);
+
+ if(paidSoFar<0 || paidSoFar>due){
+   showNotice(`Total Paid So Far must be between ₹0 and ${money(due)}.`,"error");
+   return;
+ }
+
+ const remainingBefore=Math.max(due-paidSoFar,0);
+ if(newPayment<0){
+   showNotice("Payment Received Now cannot be negative.","error");
+   return;
+ }
+ if(newPayment>remainingBefore){
+   showNotice(`Payment Received Now cannot be greater than Remaining Due (${money(remainingBefore)}).`,"error");
+   return;
+ }
+
+ const totalPaid=paidSoFar+newPayment;
+ const status=totalPaid>=due&&due>0?"Paid":totalPaid>0?"Partial":"Pending";
+ const payload={student_id:studentId,fee_month:monthFilter.value,academic_year:academicYearForMonth(monthFilter.value),amount_due:due,amount_paid:totalPaid,payment_date:document.getElementById("paymentDate").value,payment_mode:document.getElementById("paymentMode").value,payment_status:status,remarks:document.getElementById("remarks").value.trim()||null};
+ const save=document.getElementById("saveBtn");save.disabled=true;save.textContent="Saving...";
+ let result;
+ if(old?.payment_id) result=await supabaseClient.from("fee_payments").update(payload).eq("payment_id",old.payment_id);
+ else result=await supabaseClient.from("fee_payments").insert([payload]);
+ save.disabled=false;save.textContent="Save Payment";
+ if(result.error){console.error(result.error);showNotice("Fee payment could not be saved.","error");return}
+ paymentModal.style.display="none";
+ showNotice(`${st.student_name}: Total paid is now ${money(totalPaid)}. Remaining due ${money(Math.max(due-totalPaid,0))}.`);
+ await loadData();
+});
+
+monthFilter.addEventListener("change",loadData);classFilter.addEventListener("change",render);statusFilter.addEventListener("change",render);searchInput.addEventListener("input",render);
+(async()=>{if(!await checkAdmin())return;await loadClasses();await loadData()})();
+</script>
+</body>
+</html>

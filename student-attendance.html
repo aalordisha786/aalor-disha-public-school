@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Attendance | AALOR DISHA PUBLIC SCHOOL</title>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      color: #172033;
+    }
+
+    .topbar {
+      background: #17385f;
+      color: white;
+      padding: 18px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .school-name {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .topbar p {
+      font-size: 12px;
+      margin-top: 4px;
+      opacity: .9;
+    }
+
+    .back-btn {
+      background: white;
+      color: #17385f;
+      text-decoration: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 13px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .page-header {
+      margin-bottom: 20px;
+    }
+
+    .page-header h1 {
+      color: #0c3564;
+      margin-bottom: 6px;
+    }
+
+    .page-header p {
+      color: #667085;
+      font-size: 14px;
+    }
+
+
+    .day-info {
+      display: none;
+      margin-bottom: 16px;
+      padding: 16px 18px;
+      border-radius: 12px;
+      background: #fff8e7;
+      border: 1px solid #f3d98b;
+      color: #7a5412;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .day-info strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #684607;
+    }
+
+    .toolbar-card {
+      background: white;
+      border: 1px solid #e2e7ef;
+      border-radius: 14px;
+      padding: 18px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      box-shadow: 0 4px 14px rgba(0,0,0,.04);
+      margin-bottom: 20px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .field label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 1px solid #d7dee8;
+      border-radius: 9px;
+      background: white;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: #17385f;
+      box-shadow: 0 0 0 3px rgba(23,56,95,.10);
+    }
+
+    .toolbar-actions {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 2px;
+    }
+
+    .primary-btn,
+    .secondary-btn {
+      border-radius: 8px;
+      padding: 11px 18px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .primary-btn {
+      border: none;
+      background: #17385f;
+      color: white;
+    }
+
+    .secondary-btn {
+      border: 1px solid #cfd6df;
+      background: white;
+      color: #17385f;
+    }
+
+    .primary-btn:disabled,
+    .secondary-btn:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 18px 20px;
+      box-shadow: 0 4px 14px rgba(0,0,0,.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .stat-card span {
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .stat-card strong {
+      font-size: 26px;
+      color: #123b68;
+    }
+
+    .table-card {
+      background: white;
+      border: 1px solid #e2e7ef;
+      border-radius: 12px;
+      overflow-x: auto;
+      box-shadow: 0 4px 14px rgba(0,0,0,.04);
+    }
+
+    table {
+      width: 100%;
+      min-width: 980px;
+      border-collapse: collapse;
+    }
+
+    th {
+      background: #f0f4f8;
+      color: #17385f;
+      text-align: left;
+      padding: 14px;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 12px 14px;
+      border-top: 1px solid #edf0f4;
+      font-size: 14px;
+      vertical-align: middle;
+    }
+
+    .status-select,
+    .remarks-input {
+      width: 100%;
+      min-height: 38px;
+      border: 1px solid #d7dee8;
+      border-radius: 7px;
+      padding: 8px 10px;
+      background: white;
+    }
+
+    .status-select {
+      min-width: 115px;
+    }
+
+    .remarks-input {
+      min-width: 180px;
+    }
+
+    .percentage {
+      font-weight: 700;
+      color: #17385f;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 34px;
+      color: #667085;
+    }
+
+    .notice {
+      display: none;
+      margin-bottom: 16px;
+      padding: 13px 16px;
+      border-radius: 9px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .notice.success {
+      display: block;
+      background: #ecfdf3;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+
+    .notice.error {
+      display: block;
+      background: #fff1f2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+    }
+
+    
+    .popup-card{
+      position:fixed;
+      top:22px;
+      left:50%;
+      transform:translateX(-50%) translateY(-18px);
+      width:min(470px,calc(100% - 28px));
+      border-radius:12px;
+      padding:14px 16px 16px;
+      box-shadow:0 14px 35px rgba(15,23,42,.18);
+      opacity:0;
+      pointer-events:none;
+      transition:.28s ease;
+      z-index:999;
+      overflow:hidden;
+      font-size:13px;
+      line-height:1.45;
+      font-weight:600;
+    }
+    .popup-card.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .popup-card.success{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534}
+    .popup-card.error{background:#fff1f2;border:1px solid #fecaca;color:#b91c1c}
+    .popup-card strong{display:block;font-size:14px;margin-bottom:4px}
+    .popup-line{position:absolute;left:0;bottom:0;height:4px;width:0}
+    .popup-card.success .popup-line{background:#16a34a}
+    .popup-card.error .popup-line{background:#dc2626}
+    .popup-card.show .popup-line{animation:popupProgress 3.2s linear forwards}
+    .popup-side{position:absolute;top:0;bottom:0;width:4px;opacity:.85}
+    .popup-card.success .popup-side{background:#16a34a;box-shadow:0 0 10px rgba(22,163,74,.4)}
+    .popup-card.error .popup-side{background:#dc2626;box-shadow:0 0 10px rgba(220,38,38,.35)}
+    .popup-side.left{left:0}.popup-side.right{right:0}
+    .popup-card.show .popup-side.left{animation:sideLeft 1.2s ease-in-out 2}
+    .popup-card.show .popup-side.right{animation:sideRight 1.2s ease-in-out 2}
+    @keyframes popupProgress{from{width:0}to{width:100%}}
+    @keyframes sideLeft{0%,100%{transform:translateY(-100%)}50%{transform:translateY(100%)}}
+    @keyframes sideRight{0%,100%{transform:translateY(100%)}50%{transform:translateY(-100%)}}
+
+    @media (max-width: 900px) {
+      .toolbar-card { grid-template-columns: repeat(2, 1fr); }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 650px) {
+      .topbar {
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .toolbar-card { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: 1fr; }
+      .toolbar-actions { flex-direction: column; }
+      .primary-btn, .secondary-btn { width: 100%; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="successPopup" class="popup-card success">
+    <div class="popup-side left"></div>
+    <div class="popup-side right"></div>
+    <strong>Congratulations!</strong>
+    <span>Your attendance has been submitted successfully.</span>
+    <div class="popup-line"></div>
+  </div>
+
+  <div id="errorPopup" class="popup-card error">
+    <div class="popup-side left"></div>
+    <div class="popup-side right"></div>
+    <strong>Attendance already submitted</strong>
+    <span id="errorPopupText">Your attendance has already been submitted for this date.</span>
+    <div class="popup-line"></div>
+  </div>
+
+  <header class="topbar">
+    <div>
+      <div class="school-name">AALOR DISHA PUBLIC SCHOOL</div>
+      <p>School ERP Administration</p>
+    </div>
+    <a href="admin-dashboard.html" class="back-btn">← Dashboard</a>
+  </header>
+
+  <main class="container">
+    <section class="page-header">
+      <h1>Student Attendance</h1>
+      <p>Mark daily attendance and view student attendance percentage.</p>
+    </section>
+
+    <div id="notice" class="notice"></div>
+
+    <div id="dayInfo" class="day-info">
+      <strong>No attendance recorded for this day.</strong>
+      This may be a holiday/week off, or attendance has not been marked yet.
+    </div>
+
+    <section class="toolbar-card">
+      <div class="field">
+        <label for="attendanceDate">Attendance Date</label>
+        <input type="date" id="attendanceDate" />
+      </div>
+
+      <div class="field">
+        <label for="classFilter">Class</label>
+        <select id="classFilter">
+          <option value="All">All Classes</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="studentSearch">Search Student</label>
+        <input type="text" id="studentSearch" placeholder="Name or roll no..." />
+      </div>
+
+      <div class="field">
+        <label>Current View</label>
+        <input type="text" id="viewCount" value="0 students" readonly />
+      </div>
+
+      <div class="toolbar-actions">
+        <button type="button" id="markAllPresentBtn" class="secondary-btn">
+          Mark All Present
+        </button>
+        <button type="button" id="saveAttendanceBtn" class="primary-btn">
+          Save Attendance
+        </button>
+      </div>
+    </section>
+
+    <section class="stats">
+      <div class="stat-card">
+        <span>Total Students</span>
+        <strong id="totalStudents">0</strong>
+      </div>
+      <div class="stat-card">
+        <span>Present</span>
+        <strong id="presentCount">0</strong>
+      </div>
+      <div class="stat-card">
+        <span>Absent</span>
+        <strong id="absentCount">0</strong>
+      </div>
+      <div class="stat-card">
+        <span>Leave</span>
+        <strong id="leaveCount">0</strong>
+      </div>
+    </section>
+
+    <section class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>Roll No.</th>
+            <th>Student Name</th>
+            <th>Class</th>
+            <th>Attendance %</th>
+            <th>Status</th>
+            <th>Remarks</th>
+          </tr>
+        </thead>
+        <tbody id="attendanceTableBody">
+          <tr>
+            <td colspan="6" class="loading">Loading students...</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    const SUPABASE_URL = "https://zoickuxjrwjowhotzkue.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY =
+      "sb_publishable__i970SfH3NT8Iv_CsIYsfg_v9It3loN";
+
+    const supabaseClient = supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
+
+    const attendanceDate = document.getElementById("attendanceDate");
+    const classFilter = document.getElementById("classFilter");
+    const studentSearch = document.getElementById("studentSearch");
+    const attendanceTableBody = document.getElementById("attendanceTableBody");
+    const saveAttendanceBtn = document.getElementById("saveAttendanceBtn");
+    const markAllPresentBtn = document.getElementById("markAllPresentBtn");
+    const notice = document.getElementById("notice");
+    const successPopup = document.getElementById("successPopup");
+    const errorPopup = document.getElementById("errorPopup");
+    const errorPopupText = document.getElementById("errorPopupText");
+    const dayInfo = document.getElementById("dayInfo");
+
+    let studentsCache = [];
+    let attendanceForDate = new Map();
+    let attendancePercentages = new Map();
+
+    function getLocalDateString() {
+      const now = new Date();
+      const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+      return local.toISOString().split("T")[0];
+    }
+
+    attendanceDate.value = getLocalDateString();
+
+    function showNotice(message, type = "success") {
+      notice.textContent = message;
+      notice.className = `notice ${type}`;
+      clearTimeout(showNotice.timer);
+      showNotice.timer = setTimeout(() => {
+        notice.className = "notice";
+        notice.textContent = "";
+      }, 3500);
+    }
+
+    function showPopup(kind, message) {
+      const popup = kind === "success" ? successPopup : errorPopup;
+      const other = kind === "success" ? errorPopup : successPopup;
+
+      other.classList.remove("show");
+      popup.classList.remove("show");
+
+      if (kind === "error" && message) {
+        errorPopupText.textContent = message;
+      }
+
+      void popup.offsetWidth;
+      popup.classList.add("show");
+
+      clearTimeout(showPopup.timer);
+      showPopup.timer = setTimeout(() => popup.classList.remove("show"), 3300);
+    }
+
+    async function checkAdmin() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+
+      if (!session) {
+        window.location.href = "erp-login.html";
+        return false;
+      }
+
+      const { data: profile, error } = await supabaseClient
+        .from("user_profiles")
+        .select("role,status")
+        .eq("user_id", session.user.id)
+        .single();
+
+      if (
+        error ||
+        !profile ||
+        profile.role !== "ADMIN" ||
+        profile.status !== "Active"
+      ) {
+        await supabaseClient.auth.signOut();
+        window.location.href = "erp-login.html";
+        return false;
+      }
+
+      return true;
+    }
+
+    async function loadClasses() {
+      const { data: classes, error } = await supabaseClient
+        .from("classes")
+        .select("class_id,class_name,section")
+        .eq("status", "Active")
+        .order("class_id", { ascending: true });
+
+      if (error) {
+        console.error("Class loading error:", error);
+        showNotice("Could not load classes.", "error");
+        return;
+      }
+
+      classFilter.innerHTML = '<option value="All">All Classes</option>';
+
+      (classes || []).forEach(item => {
+        const option = document.createElement("option");
+        option.value = String(item.class_id);
+        option.textContent =
+          `${item.class_name} ${item.section || ""}`.trim();
+        classFilter.appendChild(option);
+      });
+    }
+
+    async function loadStudents() {
+      attendanceTableBody.innerHTML =
+        '<tr><td colspan="6" class="loading">Loading students...</td></tr>';
+
+      const { data: students, error } = await supabaseClient
+        .from("students")
+        .select(`
+          student_id,
+          student_name,
+          roll_no,
+          class_id,
+          status,
+          classes (
+            class_name,
+            section
+          )
+        `)
+        .eq("status", "Active")
+        .order("student_id", { ascending: true });
+
+      if (error) {
+        console.error("Student loading error:", error);
+        attendanceTableBody.innerHTML =
+          '<tr><td colspan="6" class="loading">Could not load students.</td></tr>';
+        return;
+      }
+
+      studentsCache = students || [];
+      await loadAttendanceData();
+    }
+
+    async function loadAttendanceData() {
+      const selectedDate = attendanceDate.value;
+
+      const { data: dayAttendance, error: dayError } = await supabaseClient
+        .from("student_attendance")
+        .select("attendance_id,student_id,attendance_status,remarks")
+        .eq("attendance_date", selectedDate);
+
+      if (dayError) {
+        console.error("Attendance loading error:", dayError);
+        showNotice("Could not load attendance for selected date.", "error");
+        return;
+      }
+
+      attendanceForDate = new Map(
+        (dayAttendance || []).map(item => [String(item.student_id), item])
+      );
+
+      if ((dayAttendance || []).length === 0) {
+        dayInfo.style.display = "block";
+      } else {
+        dayInfo.style.display = "none";
+      }
+
+      const studentIds = studentsCache.map(s => s.student_id);
+
+      if (studentIds.length === 0) {
+        attendancePercentages = new Map();
+        renderAttendance();
+        return;
+      }
+
+      const { data: history, error: historyError } = await supabaseClient
+        .from("student_attendance")
+        .select("student_id,attendance_status")
+        .in("student_id", studentIds);
+
+      if (historyError) {
+        console.error("Attendance history error:", historyError);
+        attendancePercentages = new Map();
+      } else {
+        const totals = new Map();
+        const presents = new Map();
+
+        (history || []).forEach(item => {
+          const key = String(item.student_id);
+          totals.set(key, (totals.get(key) || 0) + 1);
+
+          if (item.attendance_status === "Present") {
+            presents.set(key, (presents.get(key) || 0) + 1);
+          }
+        });
+
+        attendancePercentages = new Map();
+
+        studentIds.forEach(id => {
+          const key = String(id);
+          const total = totals.get(key) || 0;
+          const present = presents.get(key) || 0;
+          const percentage = total ? ((present / total) * 100).toFixed(1) : "0.0";
+          attendancePercentages.set(key, percentage);
+        });
+      }
+
+      renderAttendance();
+    }
+
+    function getVisibleStudents() {
+      const searchValue = studentSearch.value.trim().toLowerCase();
+      const selectedClass = classFilter.value;
+
+      return studentsCache.filter(student => {
+        const matchesClass =
+          selectedClass === "All" ||
+          String(student.class_id) === selectedClass;
+
+        const matchesSearch =
+          (student.student_name || "").toLowerCase().includes(searchValue) ||
+          String(student.roll_no || "").toLowerCase().includes(searchValue);
+
+        return matchesClass && matchesSearch;
+      });
+    }
+
+    function renderAttendance() {
+      const visibleStudents = getVisibleStudents();
+
+      attendanceTableBody.innerHTML = "";
+
+      if (!visibleStudents.length) {
+        attendanceTableBody.innerHTML =
+          '<tr><td colspan="6" class="loading">No active students found.</td></tr>';
+        updateStats();
+        return;
+      }
+
+      visibleStudents.forEach(student => {
+        const key = String(student.student_id);
+        const savedAttendance = attendanceForDate.get(key);
+        const selectedStatus = savedAttendance?.attendance_status || "Not Marked";
+        const remarks = savedAttendance?.remarks || "";
+
+        const className = student.classes
+          ? `${student.classes.class_name} ${student.classes.section || ""}`.trim()
+          : "-";
+
+        const row = document.createElement("tr");
+        row.dataset.studentId = student.student_id;
+
+        row.innerHTML = `
+          <td>${student.roll_no || "-"}</td>
+          <td>${student.student_name || "-"}</td>
+          <td>${className}</td>
+          <td class="percentage">${attendancePercentages.get(key) || "0.0"}%</td>
+          <td>
+            <select class="status-select">
+              <option value="Not Marked" ${selectedStatus === "Not Marked" ? "selected" : ""}>Not Marked</option>
+              <option value="Present" ${selectedStatus === "Present" ? "selected" : ""}>Present</option>
+              <option value="Absent" ${selectedStatus === "Absent" ? "selected" : ""}>Absent</option>
+              <option value="Leave" ${selectedStatus === "Leave" ? "selected" : ""}>Leave</option>
+            </select>
+          </td>
+          <td>
+            <input
+              class="remarks-input"
+              type="text"
+              placeholder="Optional remarks"
+              value="${escapeHtml(remarks)}"
+            />
+          </td>
+        `;
+
+        attendanceTableBody.appendChild(row);
+      });
+
+      document.querySelectorAll(".status-select").forEach(select => {
+        select.addEventListener("change", updateStats);
+      });
+
+      updateStats();
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+
+    function updateStats() {
+      const rows = [...attendanceTableBody.querySelectorAll("tr[data-student-id]")];
+
+      let present = 0;
+      let absent = 0;
+      let leave = 0;
+
+      rows.forEach(row => {
+        const status = row.querySelector(".status-select")?.value;
+        if (status === "Present") present++;
+        if (status === "Absent") absent++;
+        if (status === "Leave") leave++;
+      });
+
+      document.getElementById("totalStudents").textContent = rows.length;
+      document.getElementById("presentCount").textContent = present;
+      document.getElementById("absentCount").textContent = absent;
+      document.getElementById("leaveCount").textContent = leave;
+      document.getElementById("viewCount").value =
+        `${rows.length} student${rows.length === 1 ? "" : "s"}`;
+    }
+
+    markAllPresentBtn.addEventListener("click", () => {
+      document.querySelectorAll(".status-select").forEach(select => {
+        select.value = "Present";
+      });
+      updateStats();
+    });
+
+    async function saveRowAttendance(row) {
+      const studentId = Number(row.dataset.studentId);
+      const status = row.querySelector(".status-select").value;
+      const remarks = row.querySelector(".remarks-input").value.trim() || null;
+      const selectedDate = attendanceDate.value;
+
+      return await supabaseClient
+        .from("student_attendance")
+        .insert([{
+          student_id: studentId,
+          attendance_date: selectedDate,
+          attendance_status: status,
+          remarks: remarks
+        }]);
+    }
+
+    saveAttendanceBtn.addEventListener("click", async () => {
+      const rows = [...attendanceTableBody.querySelectorAll("tr[data-student-id]")];
+
+      if (!rows.length) {
+        showNotice("No students are available to save.", "error");
+        return;
+      }
+
+      const unmarkedRows = rows.filter(
+        row => row.querySelector(".status-select").value === "Not Marked"
+      );
+
+      if (unmarkedRows.length) {
+        showNotice(
+          `Please mark attendance for all students first. ${unmarkedRows.length} student(s) are still Not Marked.`,
+          "error"
+        );
+        return;
+      }
+
+      const selectedDate = attendanceDate.value;
+      const studentIds = rows.map(row => Number(row.dataset.studentId));
+
+      const { data: existingRows, error: existingError } = await supabaseClient
+        .from("student_attendance")
+        .select("student_id")
+        .eq("attendance_date", selectedDate)
+        .in("student_id", studentIds);
+
+      if (existingError) {
+        console.error(existingError);
+        showNotice("Could not verify existing attendance. Please try again.", "error");
+        return;
+      }
+
+      if ((existingRows || []).length) {
+        const duplicateIds = new Set((existingRows || []).map(x => Number(x.student_id)));
+        const duplicateNames = rows
+          .filter(row => duplicateIds.has(Number(row.dataset.studentId)))
+          .map(row => row.children[1]?.textContent?.trim())
+          .filter(Boolean);
+
+        const namesText = duplicateNames.length ? ` (${duplicateNames.join(", ")})` : "";
+
+        showPopup(
+          "error",
+          `Your attendance has already been submitted for this date${namesText}. One student can be marked only once per day.`
+        );
+        return;
+      }
+
+      saveAttendanceBtn.disabled = true;
+      saveAttendanceBtn.textContent = "Saving...";
+
+      try {
+        const results = await Promise.all(rows.map(saveRowAttendance));
+        const failed = results.find(result => result.error);
+
+        if (failed) {
+          console.error("Attendance save error:", failed.error);
+          showNotice("Attendance could not be saved completely. Please try again.", "error");
+          return;
+        }
+
+        showPopup("success");
+        await loadAttendanceData();
+
+        document.querySelectorAll(".status-select").forEach(x => x.value = "Not Marked");
+        document.querySelectorAll(".remarks-input").forEach(x => x.value = "");
+        if (typeof updateStats === "function") updateStats();
+      } catch (error) {
+        console.error("Attendance save error:", error);
+        showNotice("Something went wrong while saving attendance.", "error");
+      } finally {
+        saveAttendanceBtn.disabled = false;
+        saveAttendanceBtn.textContent = "Save Attendance";
+      }
+    });
+
+    attendanceDate.addEventListener("change", loadAttendanceData);
+    classFilter.addEventListener("change", renderAttendance);
+    studentSearch.addEventListener("input", renderAttendance);
+
+    async function init() {
+      const allowed = await checkAdmin();
+      if (!allowed) return;
+
+      await loadClasses();
+      await loadStudents();
+    }
+
+    init();
+  </script>
+</body>
+</html>

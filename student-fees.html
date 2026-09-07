@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Fees | AALOR DISHA PUBLIC SCHOOL</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+:root{
+  --navy:#17385f;
+  --navy2:#244d78;
+  --bg:#f4f7fb;
+  --text:#1e293b;
+  --muted:#64748b;
+  --border:#dbe5ef;
+}
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+.topbar{
+  background:var(--navy);
+  color:#fff;
+  min-height:72px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  padding:12px 26px;
+  box-shadow:0 5px 20px rgba(15,23,42,.12);
+}
+.brand{display:flex;align-items:center;gap:13px}
+.logo{
+  width:48px;height:48px;border-radius:50%;
+  background:#fff;color:var(--navy);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:14px;
+}
+.brand h1{font-size:18px;margin:0}
+.brand p{font-size:12px;margin:3px 0 0;color:#d9e7f5}
+.actions{display:flex;gap:9px}
+.btn{
+  border:1px solid rgba(255,255,255,.5);
+  background:transparent;color:#fff;
+  padding:9px 14px;border-radius:9px;
+  cursor:pointer;font-weight:700;
+}
+.container{max-width:1120px;margin:auto;padding:28px 18px 42px}
+.hero{
+  background:linear-gradient(135deg,var(--navy),var(--navy2));
+  color:#fff;border-radius:17px;padding:25px;
+  box-shadow:0 12px 30px rgba(23,56,95,.18);
+}
+.hero h2{margin:0 0 6px;font-size:25px}
+.hero p{margin:0;color:#dce9f7;font-size:13px}
+.stats{
+  margin-top:18px;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
+}
+.stat{
+  background:#fff;border:1px solid var(--border);
+  border-radius:14px;padding:18px;
+  box-shadow:0 6px 18px rgba(15,23,42,.04);
+}
+.stat span{display:block;color:var(--muted);font-size:12px;margin-bottom:8px;font-weight:700}
+.stat strong{font-size:22px;color:var(--navy)}
+.panel{
+  background:#fff;border:1px solid var(--border);
+  border-radius:16px;margin-top:20px;padding:22px;
+  box-shadow:0 7px 20px rgba(15,23,42,.05);
+}
+.panel h3{margin:0 0 16px;color:var(--navy);font-size:18px}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:860px}
+th,td{padding:12px 10px;border-bottom:1px solid #e7edf4;text-align:left;font-size:13px}
+th{background:#f7fafc;color:#4b5e73;font-size:12px}
+.badge{
+  display:inline-block;padding:5px 9px;border-radius:20px;
+  font-size:11px;font-weight:700;background:#eef2f7;
+}
+.badge.paid{background:#ecfdf3;color:#166534}
+.badge.partial{background:#fff8e7;color:#92400e}
+.badge.pending{background:#fff1f2;color:#b91c1c}
+.empty{text-align:center;padding:30px 12px;color:var(--muted);font-size:13px}
+.message{display:none;margin-top:18px;padding:12px 14px;border-radius:10px;font-size:13px}
+.message.error{display:block;background:#fff1f2;border:1px solid #fecaca;color:#b91c1c}
+.loading{
+  position:fixed;inset:0;background:rgba(244,247,251,.94);
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:700;color:var(--navy);z-index:20;
+}
+.footer{text-align:center;color:#8492a6;font-size:12px;padding-top:25px}
+@media(max-width:850px){.stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:650px){
+  .topbar{padding:11px 14px}
+  .brand h1{font-size:14px}
+  .brand p{display:none}
+  .logo{width:40px;height:40px;font-size:11px}
+  .btn{padding:8px 10px;font-size:12px}
+  .container{padding:18px 12px 30px}
+  .hero{padding:20px}
+  .hero h2{font-size:20px}
+  .stats{grid-template-columns:1fr 1fr;gap:10px}
+  .stat{padding:14px}
+  .stat strong{font-size:18px}
+  .panel{padding:16px}
+}
+</style>
+</head>
+<body>
+
+<div id="loading" class="loading">Loading Fees...</div>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">ADPS</div>
+    <div>
+      <h1>AALOR DISHA PUBLIC SCHOOL</h1>
+      <p>Student Portal • Fees</p>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="btn" onclick="location.href='student-dashboard.html'">Dashboard</button>
+    <button class="btn" id="logoutBtn">Logout</button>
+  </div>
+</header>
+
+<main class="container">
+  <section class="hero">
+    <h2 id="studentTitle">My Fees</h2>
+    <p>Only your own fee payment records are shown here.</p>
+  </section>
+
+  <div id="message" class="message"></div>
+
+  <section class="stats">
+    <div class="stat"><span>Total Fee Due</span><strong id="totalDue">₹0</strong></div>
+    <div class="stat"><span>Total Paid</span><strong id="totalPaid">₹0</strong></div>
+    <div class="stat"><span>Total Pending</span><strong id="totalPending">₹0</strong></div>
+    <div class="stat"><span>Paid Months</span><strong id="paidMonths">0</strong></div>
+  </section>
+
+  <section class="panel">
+    <h3>Fee Payment History</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Fee Month</th>
+            <th>Academic Year</th>
+            <th>Due</th>
+            <th>Paid</th>
+            <th>Pending</th>
+            <th>Payment Date</th>
+            <th>Mode</th>
+            <th>Status</th>
+            <th>Remarks</th>
+          </tr>
+        </thead>
+        <tbody id="feesBody"></tbody>
+      </table>
+      <div id="emptyState" class="empty" style="display:none;">No fee payment records found yet.</div>
+    </div>
+  </section>
+
+  <div class="footer">AALOR DISHA PUBLIC SCHOOL • Student ERP Portal</div>
+</main>
+
+<script>
+const SUPABASE_URL='https://zoickuxjrwjowhotzkue.supabase.co';
+const SUPABASE_KEY='sb_publishable__i970SfH3NT8Iv_CsIYsfg_v9It3loN';
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+const loading=document.getElementById('loading');
+const message=document.getElementById('message');
+
+function showError(text){
+  message.textContent=text;
+  message.className='message error';
+}
+function formatDate(v){
+  if(!v) return '—';
+  const d=new Date(v+'T00:00:00');
+  if(Number.isNaN(d.getTime())) return v;
+  return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+}
+function money(v){
+  const n=Number(v||0);
+  return '₹'+n.toLocaleString('en-IN',{minimumFractionDigits:0,maximumFractionDigits:2});
+}
+function esc(v){
+  return String(v ?? '').replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
+async function loadFees(){
+  const {data:{session},error:sessionError}=await db.auth.getSession();
+  if(sessionError || !session){
+    location.href='student-login.html';
+    return;
+  }
+
+  const uid=session.user.id;
+
+  const {data:profile,error:profileError}=await db
+    .from('user_profiles')
+    .select('role,status,student_id')
+    .eq('user_id',uid)
+    .single();
+
+  if(profileError || !profile || profile.role!=='STUDENT' || profile.status!=='Active' || !profile.student_id){
+    await db.auth.signOut();
+    location.href='student-login.html';
+    return;
+  }
+
+  const {data:student}=await db
+    .from('students')
+    .select('student_name')
+    .eq('student_id',profile.student_id)
+    .maybeSingle();
+
+  if(student?.student_name){
+    document.getElementById('studentTitle').textContent=student.student_name+' - My Fees';
+  }
+
+  const {data:rows,error:feesError}=await db
+    .from('fee_payments')
+    .select('fee_month,academic_year,amount_due,amount_paid,payment_date,payment_mode,payment_status,remarks')
+    .eq('student_id',profile.student_id)
+    .order('fee_month',{ascending:false});
+
+  if(feesError){
+    showError('Fee records could not be loaded. Student fee permission may need to be enabled.');
+    loading.style.display='none';
+    return;
+  }
+
+  const records=rows || [];
+  const totalDue=records.reduce((s,r)=>s+Number(r.amount_due||0),0);
+  const totalPaid=records.reduce((s,r)=>s+Number(r.amount_paid||0),0);
+  const totalPending=Math.max(totalDue-totalPaid,0);
+  const paidMonths=records.filter(r=>String(r.payment_status||'').toLowerCase()==='paid').length;
+
+  document.getElementById('totalDue').textContent=money(totalDue);
+  document.getElementById('totalPaid').textContent=money(totalPaid);
+  document.getElementById('totalPending').textContent=money(totalPending);
+  document.getElementById('paidMonths').textContent=paidMonths;
+
+  const tbody=document.getElementById('feesBody');
+  const empty=document.getElementById('emptyState');
+
+  if(!records.length){
+    tbody.innerHTML='';
+    empty.style.display='block';
+  } else {
+    empty.style.display='none';
+    tbody.innerHTML=records.map(r=>{
+      const due=Number(r.amount_due||0);
+      const paid=Number(r.amount_paid||0);
+      const pending=Math.max(due-paid,0);
+      const status=String(r.payment_status||'Pending');
+      const cls=status.toLowerCase();
+      return `<tr>
+        <td>${esc(r.fee_month || '—')}</td>
+        <td>${esc(r.academic_year || '—')}</td>
+        <td>${esc(money(due))}</td>
+        <td>${esc(money(paid))}</td>
+        <td>${esc(money(pending))}</td>
+        <td>${esc(formatDate(r.payment_date))}</td>
+        <td>${esc(r.payment_mode || '—')}</td>
+        <td><span class="badge ${esc(cls)}">${esc(status)}</span></td>
+        <td>${esc(r.remarks || '—')}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  loading.style.display='none';
+}
+
+document.getElementById('logoutBtn').addEventListener('click',async()=>{
+  await db.auth.signOut();
+  sessionStorage.clear();
+  location.href='student-login.html';
+});
+
+loadFees();
+</script>
+</body>
+</html>

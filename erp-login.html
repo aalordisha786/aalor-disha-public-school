@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>ERP Login | AALOR DISHA PUBLIC SCHOOL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--ink:#13233a;--muted:#687386;--accent:#d69a2d;--line:#e6e9ee;--bg:#f4f7fb;--white:#fff;--danger:#b42318;--success:#067647}
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,Arial,sans-serif;color:var(--ink);background:linear-gradient(135deg,#eef3f9,#fbfaf6);min-height:100vh;display:grid;place-items:center;padding:24px}
+    .shell{width:min(980px,100%);display:grid;grid-template-columns:1.05fr .95fr;background:var(--white);border:1px solid var(--line);border-radius:26px;overflow:hidden;box-shadow:0 24px 70px rgba(25,42,70,.13)}
+    .school-panel{padding:58px 48px;background:linear-gradient(145deg,#12243c,#1e3a5f);color:white;display:flex;flex-direction:column;justify-content:space-between;min-height:570px}
+    .brand{display:flex;gap:14px;align-items:center}.brand img{width:64px;height:64px;border-radius:50%;object-fit:cover;background:white;padding:3px}.brand strong{display:block;font-family:"Playfair Display",serif;font-size:23px;letter-spacing:.4px}.brand span{font-size:13px;opacity:.78}
+    .school-panel h1{font-family:"Playfair Display",serif;font-size:42px;line-height:1.12;margin:38px 0 14px}.school-panel h1 em{color:#f3c66c;font-style:normal}.school-panel p{color:#d9e2ee;line-height:1.75;max-width:440px}.back{color:white;text-decoration:none;font-weight:600;font-size:14px}.back:hover{text-decoration:underline}
+    .login-panel{padding:58px 52px;display:flex;flex-direction:column;justify-content:center}.eyebrow{font-size:12px;font-weight:700;letter-spacing:1.5px;color:#9b6b16}.login-panel h2{font-family:"Playfair Display",serif;font-size:34px;margin:9px 0 8px}.sub{color:var(--muted);font-size:14px;line-height:1.6;margin:0 0 28px}
+    label{display:block;font-size:13px;font-weight:700;margin:16px 0 8px}input{width:100%;height:48px;border:1px solid #ccd3dd;border-radius:10px;padding:0 14px;font:inherit;outline:none;background:#fff}input:focus{border-color:#a8751c;box-shadow:0 0 0 3px rgba(214,154,45,.14)}
+    button{width:100%;height:50px;border:0;border-radius:10px;background:#183657;color:white;font-weight:700;font-size:15px;cursor:pointer;margin-top:22px}button:hover{background:#102b49}button:disabled{opacity:.65;cursor:wait}.message{min-height:22px;margin-top:14px;font-size:13px}.message.error{color:var(--danger)}.message.success{color:var(--success)}
+    .security{margin-top:25px;padding-top:20px;border-top:1px solid var(--line);font-size:12px;line-height:1.6;color:var(--muted)}
+    @media(max-width:760px){body{padding:14px}.shell{grid-template-columns:1fr}.school-panel{min-height:auto;padding:30px 26px}.school-panel h1{font-size:30px;margin:28px 0 10px}.school-panel p{display:none}.login-panel{padding:38px 26px 42px}.login-panel h2{font-size:30px}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="school-panel">
+      <div>
+        <div class="brand">
+          <img src="images/logo.jpg" alt="AALOR DISHA PUBLIC SCHOOL logo">
+          <div><strong>AALOR DISHA</strong><span>PUBLIC SCHOOL</span></div>
+        </div>
+        <h1>School ERP<br><em>Secure Portal</em></h1>
+        <p>Authorized access for school administration, academic records, attendance, fees and reporting.</p>
+      </div>
+      <a class="back" href="index.html">← Back to school website</a>
+    </section>
+
+    <main class="login-panel">
+      <div class="eyebrow">AUTHORIZED ACCESS</div>
+      <h2>Welcome back</h2>
+      <p class="sub">Sign in with your school ERP account. Public account registration is disabled.</p>
+
+      <form id="loginForm">
+        <label for="email">Email address</label>
+        <input id="email" type="email" autocomplete="username" required placeholder="Enter your email">
+
+        <label for="password">Password</label>
+        <input id="password" type="password" autocomplete="current-password" required placeholder="Enter your password">
+
+        <button id="loginButton" type="submit">Sign in to ERP</button>
+        <div id="message" class="message" aria-live="polite"></div>
+      </form>
+
+      <div class="security">Protected by Supabase Authentication and Row Level Security (RLS). Only authorized school accounts can access ERP data.</div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // Public browser configuration only. NEVER place a Supabase Secret/Service Role key here.
+    const SUPABASE_URL = 'https://zoickuxjrwjowhotzkue.supabase.co';
+    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable__i970SfH3NT8Iv_CsIYsfg_v9It3loN';
+
+    const form = document.getElementById('loginForm');
+    const message = document.getElementById('message');
+    const button = document.getElementById('loginButton');
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      message.textContent = '';
+      message.className = 'message';
+
+      if (SUPABASE_PUBLISHABLE_KEY.includes('PASTE_YOUR')) {
+        message.textContent = 'Setup required: add the Supabase Publishable Key to this file first.';
+        message.className = 'message error';
+        return;
+      }
+
+      button.disabled = true;
+      button.textContent = 'Signing in...';
+
+      try {
+        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const { data, error } = await client.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+
+        const { data: profile, error: profileError } = await client
+          .from('user_profiles')
+          .select('role,status')
+          .eq('user_id', data.user.id)
+          .single();
+        if (profileError) throw profileError;
+
+        if (profile.status !== 'Active') {
+          await client.auth.signOut();
+          throw new Error('This ERP account is inactive.');
+        }
+
+        if (profile.role !== 'ADMIN') {
+          await client.auth.signOut();
+          throw new Error('Admin access is required for this portal.');
+        }
+
+        window.location.href = 'admin-dashboard.html';
+      } catch (error) {
+        message.textContent = error.message || 'Unable to sign in. Please check your credentials.';
+        message.className = 'message error';
+      } finally {
+        button.disabled = false;
+        button.textContent = 'Sign in to ERP';
+      }
+    });
+  </script>
+</body>
+</html>

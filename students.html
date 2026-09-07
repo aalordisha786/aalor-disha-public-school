@@ -1,0 +1,1645 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Students | AALOR DISHA PUBLIC SCHOOL</title>
+
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background: #f5f7fb;
+        color: #172033;
+      }
+
+      .topbar {
+        background: #17385f;
+        color: white;
+        padding: 18px 28px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .school-name {
+        font-size: 20px;
+        font-weight: bold;
+      }
+
+      .topbar p {
+        font-size: 12px;
+        margin-top: 4px;
+      }
+
+      .back-btn {
+        background: white;
+        color: #17385f;
+        text-decoration: none;
+        padding: 10px 16px;
+        border-radius: 6px;
+        font-weight: bold;
+        font-size: 13px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 30px auto;
+        padding: 0 20px;
+      }
+
+      .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 22px;
+      }
+
+      .page-header h1 {
+        color: #0c3564;
+        margin-bottom: 5px;
+      }
+
+      .page-header p {
+        color: #667085;
+        font-size: 14px;
+      }
+
+      .add-btn {
+        border: none;
+        background: #17385f;
+        color: white;
+        padding: 12px 18px;
+        border-radius: 7px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+
+      .table-card {
+        background: white;
+        border: 1px solid #e2e7ef;
+        border-radius: 10px;
+        overflow-x: auto;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 900px;
+      }
+
+      th {
+        background: #f0f4f8;
+        color: #17385f;
+        text-align: left;
+        padding: 14px;
+        font-size: 13px;
+      }
+
+      td {
+        padding: 14px;
+        border-top: 1px solid #edf0f4;
+        font-size: 14px;
+      }
+
+      .status {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 20px;
+        background: #e7f7ed;
+        color: #137333;
+        font-size: 12px;
+        font-weight: bold;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 35px;
+        color: #667085;
+      }
+
+      @media (max-width: 700px) {
+        .page-header {
+          align-items: flex-start;
+          gap: 15px;
+          flex-direction: column;
+        }
+      }
+
+      #studentModal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 9999;
+}
+
+.modal-box {
+  width: 100%;
+  max-width: 650px;
+  background: white;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+}
+
+.modal-box h2 {
+  color: #17385f;
+  margin-bottom: 18px;
+}
+
+#studentForm {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+#studentForm input,
+#studentForm select {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #d7dee8;
+  border-radius: 7px;
+  font-size: 14px;
+}
+
+#studentForm > div {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 10px;
+}
+
+#cancelStudentBtn {
+  border: 1px solid #cfd6df;
+  background: white;
+  color: #172033;
+  padding: 11px 18px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+@media (max-width: 700px) {
+  #studentForm {
+    grid-template-columns: 1fr;
+  }
+}
+
+.success-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 10000;
+}
+
+.success-card {
+  width: 100%;
+  max-width: 610px;
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 26px;
+  position: relative;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+  border-bottom: 5px solid #16a34a;
+  animation: successPop 0.35s ease;
+}
+
+@keyframes successPop {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.success-close {
+  position: absolute;
+  top: 15px;
+  right: 18px;
+  border: none;
+  background: transparent;
+  font-size: 28px;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.success-title {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 22px;
+}
+
+.success-check {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: #16a34a;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: bold;
+  box-shadow: 0 0 0 10px #dcfce7;
+}
+
+.success-title h2 {
+  color: #12213a;
+  margin-bottom: 5px;
+}
+
+.success-title p {
+  color: #64748b;
+}
+
+.success-details {
+  background: #eefcf4;
+  border-radius: 14px;
+  padding: 18px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+}
+
+.success-details div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.success-details span {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.success-details strong {
+  color: #172033;
+  font-size: 15px;
+}
+
+.success-status {
+  display: inline-block;
+  width: fit-content;
+  background: #bbf7d0;
+  color: #15803d !important;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.success-bottom {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.success-progress {
+  flex: 1;
+  height: 10px;
+  background: #e2e8f0;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+#successProgressBar {
+  width: 100%;
+  height: 100%;
+  background: #22c55e;
+  border-radius: 20px;
+  transform-origin: right;
+}
+
+#successGreatBtn {
+  border: none;
+  background: #059669;
+  color: white;
+  padding: 12px 25px;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+@media (max-width: 650px) {
+  .success-details {
+    grid-template-columns: 1fr;
+  }
+
+  .success-bottom {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* ===== Student Error Card ===== */
+
+.error-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.error-card {
+  width: 100%;
+  max-width: 610px;
+  background: white;
+  border-radius: 18px;
+  padding: 26px;
+  position: relative;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+  border-bottom: 5px solid #ef4444;
+}
+
+.error-close {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.error-title {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.error-icon {
+  width: 68px;
+  height: 68px;
+  min-width: 68px;
+  border-radius: 50%;
+  background: #fee2e2;
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 38px;
+  font-weight: bold;
+}
+
+.error-title h2 {
+  color: #172033;
+  margin: 0 0 5px;
+  font-size: 24px;
+}
+
+.error-title p {
+  margin: 0;
+  color: #64748b;
+}
+
+.error-bottom {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 22px;
+}
+
+.error-progress {
+    flex: 1;
+    height: 10px;
+    background: #fee2e2;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+#errorProgressBar {
+    width: 0%;
+    height: 100%;
+    background: #ef4444;
+    border-radius: 20px;
+}
+
+#errorProgressBar.animate-error-progress {
+    animation: errorProgressFill 3s linear forwards;
+}
+
+@keyframes errorProgressFill {
+    from {
+        width: 0%;
+    }
+
+    to {
+        width: 100%;
+    }
+}
+
+#errorOkBtn {
+  border: none;
+  background: #ef4444;
+  color: white;
+  padding: 12px 28px;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+@media (max-width: 650px) {
+  .error-card {
+    padding: 22px;
+  }
+
+  .error-bottom {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* ===== Edit Student Modal ===== */
+
+.edit-student-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.58);
+  z-index: 9998;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.edit-modal-box {
+  width: 100%;
+  max-width: 720px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: white;
+  border-radius: 18px;
+  padding: 26px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+}
+
+.edit-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.edit-modal-header h2 {
+  color: #17385f;
+  margin-bottom: 5px;
+}
+
+.edit-modal-header p {
+  color: #64748b;
+  font-size: 14px;
+}
+
+.edit-close-btn {
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+#editStudentForm {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+#editStudentForm input,
+#editStudentForm select {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #d7dee8;
+  border-radius: 7px;
+  font-size: 14px;
+}
+
+.edit-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.update-student-btn {
+  border: none;
+  background: #17385f;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.edit-cancel-btn {
+  border: 1px solid #cfd6df;
+  background: white;
+  color: #172033;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.danger-zone {
+  margin-top: 28px;
+  padding: 18px;
+  border: 1px solid #fecaca;
+  background: #fff7f7;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: center;
+}
+
+.danger-zone h3 {
+  color: #b91c1c;
+  margin-bottom: 5px;
+}
+
+.danger-zone p {
+  color: #7f1d1d;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.delete-student-btn {
+  border: none;
+  background: #dc2626;
+  color: white;
+  padding: 11px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.edit-btn {
+  border: 1px solid #17385f;
+  background: white;
+  color: #17385f;
+  padding: 7px 13px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.edit-btn:hover {
+  background: #17385f;
+  color: white;
+}
+
+@media (max-width: 700px) {
+  #editStudentForm {
+    grid-template-columns: 1fr;
+  }
+
+  .danger-zone {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* ===== Delete Confirmation Modal ===== */
+
+.delete-confirm-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.62);
+  z-index: 10001;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.delete-confirm-card {
+  width: 100%;
+  max-width: 500px;
+  background: white;
+  border-radius: 18px;
+  padding: 28px;
+  text-align: center;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.28);
+  border-bottom: 5px solid #dc2626;
+}
+
+.delete-confirm-icon {
+  width: 68px;
+  height: 68px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: #fee2e2;
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  font-weight: bold;
+}
+
+.delete-confirm-card h2 {
+  color: #991b1b;
+  margin-bottom: 10px;
+}
+
+.delete-confirm-card p {
+  color: #64748b;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.delete-student-name {
+  margin-top: 16px;
+  padding: 12px;
+  background: #fff7f7;
+  border-radius: 8px;
+  color: #7f1d1d !important;
+}
+
+.delete-confirm-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.cancel-delete-btn {
+  border: 1px solid #cfd6df;
+  background: white;
+  color: #172033;
+  padding: 11px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.confirm-delete-btn {
+  border: none;
+  background: #dc2626;
+  color: white;
+  padding: 11px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.confirm-delete-btn:hover {
+  background: #b91c1c;
+}
+
+/* ===== Student Search & Filter ===== */
+
+.student-tools {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+#studentSearch {
+    width: 340px;
+    height: 44px;
+    padding: 0 16px;
+    border: 1px solid #d6deea;
+    border-radius: 10px;
+    background: white;
+    font-size: 14px;
+    outline: none;
+    transition: 0.2s ease;
+}
+
+#studentSearch:focus {
+    border-color: #173f6d;
+    box-shadow: 0 0 0 3px rgba(23, 63, 109, 0.10);
+}
+
+#statusFilter {
+    height: 44px;
+    padding: 0 38px 0 14px;
+    border: 1px solid #d6deea;
+    border-radius: 10px;
+    background: white;
+    font-size: 14px;
+    cursor: pointer;
+    outline: none;
+}
+
+@media (max-width: 650px) {
+    .student-tools {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    #studentSearch,
+    #statusFilter {
+        width: 100%;
+    }
+}
+
+.student-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin: 22px 0;
+}
+
+.stat-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 20px 22px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stat-card span {
+    font-size: 14px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.stat-card strong {
+    font-size: 28px;
+    color: #123b68;
+}
+
+@media (max-width: 700px) {
+    .student-stats {
+        grid-template-columns: 1fr;
+    }
+}
+
+.sortable {
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+}
+
+.sort-icon {
+    display: inline-block;
+    margin-left: 6px;
+    color: #94a3b8;
+    font-size: 13px;
+    transition: 0.2s;
+}
+
+.sortable:hover {
+    color: #17416f;
+}
+
+.sortable:hover .sort-icon {
+    color: #17416f;
+}
+    </style>
+  </head>
+
+  <body>
+    <header class="topbar">
+      <div>
+        <div class="school-name">AALOR DISHA PUBLIC SCHOOL</div>
+        <p>School ERP Administration</p>
+      </div>
+
+      <a href="admin-dashboard.html" class="back-btn"> ← Dashboard </a>
+    </header>
+
+    <main class="container">
+      <section class="page-header">
+        <div>
+          <h1>Students</h1>
+          <p>View and manage student records.</p>
+          <div class="student-tools">
+    <input
+        type="text"
+        id="studentSearch"
+        placeholder="Search by name, roll no. or phone..."
+    >
+
+    <select id="statusFilter">
+        <option value="All">All Students</option>
+        <option value="Active">Active</option>
+        <option value="Inactive">Inactive</option>
+    </select>
+</div>
+        </div>
+
+        <button class="add-btn" id="addStudentBtn">+ Add Student</button>
+      </section>
+
+      <div class="student-stats">
+    <div class="stat-card">
+        <span>Total Students</span>
+        <strong id="totalStudents">0</strong>
+    </div>
+
+    <div class="stat-card">
+        <span>Active Students</span>
+        <strong id="activeStudents">0</strong>
+    </div>
+
+    <div class="stat-card">
+        <span>Inactive Students</span>
+        <strong id="inactiveStudents">0</strong>
+    </div>
+</div>
+
+      <section class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th class="sortable" data-column="0">ID <span class="sort-icon">↕</span></th>
+              <th class="sortable" data-column="1">Student Name <span class="sort-icon">↕</span></th>
+              <th class="sortable" data-column="2">Class <span class="sort-icon">↕</span></th>
+              <th class="sortable" data-column="3">Roll No. <span class="sort-icon">↕</span></th>
+              <th class="sortable" data-column="4">Guardian <span class="sort-icon">↕</span></th>
+              <th class="sortable" data-column="5">Phone <span class="sort-icon">↕</span></th>
+              <th class="sortable" data-column="6">Admission Date <span class="sort-icon">↕</span></th>
+              <th class="sortable" data-column="7">Status <span class="sort-icon">↕</span></th>
+            <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody id="studentTableBody">
+            <tr>
+              <td colspan="9" class="loading">Loading students...</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+      <div id="studentModal" style="display: none">
+  <div class="modal-box">
+    <h2>Add Student</h2>
+
+    <form id="studentForm">
+      <input type="text" id="studentName" placeholder="Student Name" required />
+
+      <input type="date" id="dateOfBirth" />
+
+      <select id="gender">
+        <option value="">Select Gender</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+      </select>
+
+      <select id="classId" required>
+        <option value="">Select Class</option>
+      </select>
+
+      <input type="text" id="rollNo" placeholder="Roll No." />
+
+      <input type="text" id="guardianName" placeholder="Guardian Name" />
+
+      <input type="text" id="phone" placeholder="Phone" />
+
+      <input type="text" id="address" placeholder="Address" />
+
+      <input type="date" id="admissionDate" />
+
+      <select id="studentStatus">
+        <option value="Active">Active</option>
+        <option value="Inactive">Inactive</option>
+      </select>
+
+      <div style="margin-top: 15px">
+        <button type="submit" class="add-btn">Save Student</button>
+        <button type="button" id="cancelStudentBtn">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+<!-- Edit Student Modal -->
+<div id="editStudentModal" class="edit-student-modal">
+  <div class="edit-modal-box">
+    <div class="edit-modal-header">
+      <div>
+        <h2>Edit Student</h2>
+        <p>Update student information and status.</p>
+      </div>
+
+      <button type="button" id="closeEditStudentBtn" class="edit-close-btn">
+        ×
+      </button>
+    </div>
+
+    <form id="editStudentForm">
+      <input type="hidden" id="editStudentId" />
+
+      <input
+        type="text"
+        id="editStudentName"
+        placeholder="Student Name"
+        required
+      />
+
+      <input type="date" id="editDateOfBirth" />
+
+      <select id="editGender">
+        <option value="">Select Gender</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+      </select>
+
+      <select id="editClassId" required>
+        <option value="">Select Class</option>
+      </select>
+
+      <input type="text" id="editRollNo" placeholder="Roll No." />
+
+      <input type="text" id="editGuardianName" placeholder="Guardian Name" />
+
+      <input type="text" id="editPhone" placeholder="Phone" />
+
+      <input type="text" id="editAddress" placeholder="Address" />
+
+      <input type="date" id="editAdmissionDate" />
+
+      <select id="editStudentStatus">
+        <option value="Active">Active</option>
+        <option value="Inactive">Inactive</option>
+      </select>
+
+      <div class="edit-actions">
+        <button type="submit" class="update-student-btn">Update Student</button>
+
+        <button type="button" id="cancelEditStudentBtn" class="edit-cancel-btn">
+          Cancel
+        </button>
+      </div>
+    </form>
+
+    <div class="danger-zone">
+      <div>
+        <h3>Danger Zone</h3>
+        <p>
+          Permanently delete this student record. Use Inactive status instead if
+          you want to keep history.
+        </p>
+      </div>
+
+      <button type="button" id="deleteStudentBtn" class="delete-student-btn">
+        Delete Student
+      </button>
+    </div>
+  </div>
+</div>
+<!-- End Edit Student Modal -->
+
+ <!-- Delete Confirmation Modal -->
+<div id="deleteConfirmOverlay" class="delete-confirm-overlay">
+  <div class="delete-confirm-card">
+
+    <div class="delete-confirm-icon">!</div>
+
+    <h2>Permanently Delete Student?</h2>
+
+    <p>
+      This action cannot be undone. The student record will be permanently removed.
+    </p>
+
+    <p class="delete-student-name">
+      Student: <strong id="deleteStudentName">-</strong>
+    </p>
+
+    <div class="delete-confirm-actions">
+      <button type="button" id="cancelDeleteBtn" class="cancel-delete-btn">
+        Cancel
+      </button>
+
+      <button type="button" id="confirmDeleteBtn" class="confirm-delete-btn">
+        Yes, Delete
+      </button>
+    </div>
+
+  </div>
+</div>
+<!-- End Delete Confirmation Modal -->
+
+<!-- Student Success Card -->
+<div id="successOverlay" class="success-overlay">
+  <div class="success-card">
+    <button type="button" id="closeSuccessBtn" class="success-close">×</button>
+
+    <div class="success-title">
+      <div class="success-check">✓</div>
+
+      <div>
+        <h2>Student Added Successfully!</h2>
+        <p id="successStudentMessage">Student has been added to the system.</p>
+      </div>
+    </div>
+
+    <div class="success-details">
+      <div>
+        <span>Name</span>
+        <strong id="successName">-</strong>
+      </div>
+
+      <div>
+        <span>Admission Date</span>
+        <strong id="successAdmissionDate">-</strong>
+      </div>
+
+      <div>
+        <span>Class</span>
+        <strong id="successClass">-</strong>
+      </div>
+
+      <div>
+        <span>Phone</span>
+        <strong id="successPhone">-</strong>
+      </div>
+
+      <div>
+        <span>Roll No.</span>
+        <strong id="successRoll">-</strong>
+      </div>
+
+      <div>
+        <span>Status</span>
+        <strong id="successStatus" class="success-status"> Active </strong>
+      </div>
+    </div>
+
+    <div class="success-bottom">
+      <div class="success-progress">
+        <div id="successProgressBar"></div>
+      </div>
+
+      <button type="button" id="successGreatBtn">Great! ✓</button>
+    </div>
+  </div>
+</div>
+<!-- End Student Success Card -->
+
+<!-- Student Error Card -->
+<div id="errorOverlay" class="error-overlay">
+  <div class="error-card">
+    <button type="button" id="closeErrorBtn" class="error-close">×</button>
+
+    <div class="error-title">
+      <div class="error-icon">✕</div>
+
+      <div>
+        <h2 id="errorTitle">Cannot Add Student</h2>
+        <p id="errorMessage">Something went wrong.</p>
+      </div>
+    </div>
+
+    <div class="error-bottom">
+      <div class="error-progress">
+        <div id="errorProgressBar"></div>
+      </div>
+
+      <button type="button" id="errorOkBtn">OK</button>
+    </div>
+  </div>
+</div>
+<!-- End Student Error Card -->
+
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  const SUPABASE_URL = "https://zoickuxjrwjowhotzkue.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable__i970SfH3NT8Iv_CsIYsfg_v9It3loN";
+
+  const supabaseClient = supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY,
+  );
+
+  async function loadStudents() {
+    const tableBody = document.getElementById("studentTableBody");
+
+    const { data: students, error } = await supabaseClient
+      .from("students")
+      .select(
+        `
+        student_id,
+        student_name,
+        roll_no,
+        guardian_name,
+        phone,
+        admission_date,
+        status,
+        classes (
+          class_name,
+          section
+        )
+      `,
+      )
+      .order("student_id", { ascending: true });
+
+    if (error) {
+      console.error("Student loading error:", error);
+
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="8" class="loading">
+            Unable to load students.
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tableBody.innerHTML = "";
+
+    const totalStudents = students.length;
+
+const activeStudents = students.filter(
+    student => student.status === "Active"
+).length;
+
+const inactiveStudents = students.filter(
+    student => student.status === "Inactive"
+).length;
+
+document.getElementById("totalStudents").textContent = totalStudents;
+document.getElementById("activeStudents").textContent = activeStudents;
+document.getElementById("inactiveStudents").textContent = inactiveStudents;
+
+    students.forEach((student) => {
+      const row = document.createElement("tr");
+
+      const className = student.classes
+        ? `${student.classes.class_name} ${student.classes.section || ""}`
+        : "-";
+
+      row.innerHTML = `
+        <td>${student.student_id}</td>
+        <td>${student.student_name}</td>
+        <td>${className}</td>
+        <td>${student.roll_no || "-"}</td>
+        <td>${student.guardian_name || "-"}</td>
+        <td>${student.phone || "-"}</td>
+        <td>${student.admission_date || "-"}</td>
+        <td>
+          <span class="status">
+            ${student.status}
+          </span>
+        </td>
+        <td>
+            <button
+                type="button"
+                class="edit-btn"
+                onclick="openEditStudent(${student.student_id})">
+                Edit
+            </button>
+        </td>
+      `;
+
+      tableBody.appendChild(row);
+    });
+  }
+
+  const addStudentBtn = document.getElementById("addStudentBtn");
+const studentModal = document.getElementById("studentModal");
+const cancelStudentBtn = document.getElementById("cancelStudentBtn");
+
+addStudentBtn.addEventListener("click", () => {
+  studentModal.style.display = "flex";
+});
+
+cancelStudentBtn.addEventListener("click", () => {
+  studentModal.style.display = "none";
+});
+
+  loadStudents();
+
+  async function loadClasses() {
+  const classSelect = document.getElementById("classId");
+  const editClassSelect = document.getElementById("editClassId");
+
+  const { data: classes, error } = await supabaseClient
+    .from("classes")
+    .select("class_id, class_name, section")
+    .eq("status", "Active")
+    .order("class_id", { ascending: true });
+
+  if (error) {
+    console.error("Class loading error:", error);
+    return;
+  }
+
+  classSelect.innerHTML = '<option value="">Select Class</option>';
+  editClassSelect.innerHTML = '<option value="">Select Class</option>';
+
+  classes.forEach((item) => {
+    const option = document.createElement("option");
+    option.value = item.class_id;
+    option.textContent =
+      `${item.class_name} ${item.section || ""}`.trim();
+
+    classSelect.appendChild(option);
+
+    const editOption = document.createElement("option");
+    editOption.value = item.class_id;
+    editOption.textContent =
+    `${item.class_name} ${item.section || ""}`.trim();
+
+editClassSelect.appendChild(editOption);
+  });
+}
+
+const studentForm = document.getElementById("studentForm");
+
+studentForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const newStudent = {
+    student_name: document.getElementById("studentName").value.trim(),
+    date_of_birth: document.getElementById("dateOfBirth").value || null,
+    gender: document.getElementById("gender").value || null,
+    class_id: Number(document.getElementById("classId").value),
+    roll_no: document.getElementById("rollNo").value.trim()
+  ? document.getElementById("rollNo").value.trim().padStart(2, "0")
+  : null,
+    guardian_name: document.getElementById("guardianName").value.trim() || null,
+    phone: document.getElementById("phone").value.trim() || null,
+    address: document.getElementById("address").value.trim() || null,
+    admission_date: document.getElementById("admissionDate").value || null,
+    status: document.getElementById("studentStatus").value
+  };
+
+  const { error } = await supabaseClient
+    .from("students")
+    .insert([newStudent]);
+
+if (error) {
+    console.error("Student insert error:", error);
+
+    if (error.code === "23505") {
+        document.getElementById("errorTitle").textContent =
+            "Duplicate Roll Number!";
+
+        document.getElementById("errorMessage").textContent =
+            "This roll number already exists in the selected class.";
+    } else {
+        document.getElementById("errorTitle").textContent =
+            "Cannot Add Student";
+
+        document.getElementById("errorMessage").textContent =
+            "Student could not be added. Please try again.";
+    }
+
+    document.getElementById("errorOverlay").style.display = "flex";
+
+const errorProgressBar = document.getElementById("errorProgressBar");
+
+errorProgressBar.classList.remove("animate-error-progress");
+
+void errorProgressBar.offsetWidth;
+
+errorProgressBar.classList.add("animate-error-progress");
+
+setTimeout(() => {
+    closeErrorCard();
+}, 3000);
+
+    return;
+}
+
+  document.getElementById("successName").textContent =
+    newStudent.student_name;
+
+document.getElementById("successAdmissionDate").textContent =
+    newStudent.admission_date || "-";
+
+document.getElementById("successPhone").textContent =
+    newStudent.phone || "-";
+
+document.getElementById("successRoll").textContent =
+    newStudent.roll_no || "-";
+
+document.getElementById("successStatus").textContent =
+    newStudent.status;
+
+document.getElementById("successStudentMessage").textContent =
+    `${newStudent.student_name} has been added to the system.`;
+
+const selectedClass =
+    document.getElementById("classId").selectedOptions[0].textContent;
+
+document.getElementById("successClass").textContent = selectedClass;
+
+document.getElementById("successOverlay").style.display = "flex";
+
+const progressBar = document.getElementById("successProgressBar");
+
+progressBar.style.transition = "none";
+progressBar.style.transform = "scaleX(1)";
+
+requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
+    progressBar.style.transition = "transform 3s linear";
+    progressBar.style.transform = "scaleX(0)";
+  });
+});
+
+setTimeout(() => {
+  closeSuccessCard();
+}, 3000);
+
+  studentForm.reset();
+  studentModal.style.display = "none";
+
+  await loadStudents();
+});
+
+function closeSuccessCard() {
+    document.getElementById("successOverlay").style.display = "none";
+}
+
+document.getElementById("successGreatBtn").addEventListener("click", closeSuccessCard);
+
+document.getElementById("closeSuccessBtn").addEventListener("click", closeSuccessCard);
+
+function closeErrorCard() {
+    document.getElementById("errorOverlay").style.display = "none";
+}
+
+document.getElementById("errorOkBtn")
+    .addEventListener("click", closeErrorCard);
+
+document.getElementById("closeErrorBtn")
+    .addEventListener("click", closeErrorCard);
+
+async function openEditStudent(studentId) {
+    const { data: student, error } = await supabaseClient
+        .from("students")
+        .select("*")
+        .eq("student_id", studentId)
+        .single();
+
+    if (error || !student) {
+        console.error("Edit student load error:", error);
+        return;
+    }
+
+    document.getElementById("editStudentId").value = student.student_id;
+    document.getElementById("editStudentName").value = student.student_name || "";
+    document.getElementById("editDateOfBirth").value = student.date_of_birth || "";
+    document.getElementById("editGender").value = student.gender || "";
+    document.getElementById("editClassId").value = student.class_id || "";
+    document.getElementById("editRollNo").value = student.roll_no || "";
+    document.getElementById("editGuardianName").value = student.guardian_name || "";
+    document.getElementById("editPhone").value = student.phone || "";
+    document.getElementById("editAddress").value = student.address || "";
+    document.getElementById("editAdmissionDate").value = student.admission_date || "";
+    document.getElementById("editStudentStatus").value = student.status || "Active";
+
+    document.getElementById("editStudentModal").style.display = "flex";
+}
+
+const editStudentForm = document.getElementById("editStudentForm");
+
+editStudentForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const studentId = document.getElementById("editStudentId").value;
+
+  const updatedStudent = {
+    student_name: document.getElementById("editStudentName").value.trim(),
+    date_of_birth: document.getElementById("editDateOfBirth").value || null,
+    gender: document.getElementById("editGender").value || null,
+    class_id: Number(document.getElementById("editClassId").value),
+    roll_no: document.getElementById("editRollNo").value.trim()
+      ? document.getElementById("editRollNo").value.trim().padStart(2, "0")
+      : null,
+    guardian_name: document.getElementById("editGuardianName").value.trim() || null,
+    phone: document.getElementById("editPhone").value.trim() || null,
+    address: document.getElementById("editAddress").value.trim() || null,
+    admission_date: document.getElementById("editAdmissionDate").value || null,
+    status: document.getElementById("editStudentStatus").value
+  };
+
+  const { error } = await supabaseClient
+    .from("students")
+    .update(updatedStudent)
+    .eq("student_id", studentId);
+
+  if (error) {
+    console.error("Student update error:", error);
+
+    if (error.code === "23505") {
+      document.getElementById("errorTitle").textContent =
+        "Duplicate Roll Number!";
+
+      document.getElementById("errorMessage").textContent =
+        "This roll number already exists in the selected class.";
+    } else {
+      document.getElementById("errorTitle").textContent =
+        "Cannot Update Student";
+
+      document.getElementById("errorMessage").textContent =
+        "Student could not be updated. Please try again.";
+    }
+
+    document.getElementById("errorOverlay").style.display = "flex";
+    return;
+  }
+
+  document.getElementById("editStudentModal").style.display = "none";
+
+  await loadStudents();
+});
+
+document.getElementById("cancelEditStudentBtn")
+.addEventListener("click", () => {
+document.getElementById("editStudentModal").style.display = "none";
+});
+
+document.getElementById("closeEditStudentBtn")
+    .addEventListener("click", () => {
+        document.getElementById("editStudentModal").style.display = "none";
+    });
+
+document.getElementById("deleteStudentBtn").addEventListener("click", () => {
+
+    const studentName =
+        document.getElementById("editStudentName").value;
+
+    document.getElementById("deleteStudentName").textContent =
+        studentName;
+
+    document.getElementById("deleteConfirmOverlay").style.display =
+        "flex";
+});
+
+document.getElementById("cancelDeleteBtn").addEventListener("click", () => {
+    document.getElementById("deleteConfirmOverlay").style.display =
+        "none";
+});
+
+document.getElementById("confirmDeleteBtn").addEventListener("click", async () => {
+    const studentId =
+        document.getElementById("editStudentId").value;
+
+    const { error } = await supabaseClient
+        .from("students")
+        .delete()
+        .eq("student_id", studentId);
+
+    if (error) {
+        console.error("Student delete error:", error);
+
+        document.getElementById("errorTitle").textContent =
+            "Cannot Delete Student";
+
+        document.getElementById("errorMessage").textContent =
+            "Student could not be deleted. Please try again.";
+
+        document.getElementById("deleteConfirmOverlay").style.display =
+            "none";
+
+        document.getElementById("errorOverlay").style.display =
+            "flex";
+
+        return;
+    }
+
+    document.getElementById("deleteConfirmOverlay").style.display =
+        "none";
+
+    document.getElementById("editStudentModal").style.display =
+        "none";
+
+    await loadStudents();
+});
+
+const studentSearch = document.getElementById("studentSearch");
+
+const statusFilter = document.getElementById("statusFilter");
+
+function applyStudentFilters() {
+    const searchValue = studentSearch.value.toLowerCase().trim();
+    const selectedStatus = statusFilter.value;
+
+    const rows = document.querySelectorAll("#studentTableBody tr");
+
+    rows.forEach((row) => {
+        const studentName =
+            row.children[1]?.textContent.toLowerCase() || "";
+
+        const rollNo =
+            row.children[3]?.textContent.toLowerCase() || "";
+
+        const phone =
+            row.children[5]?.textContent.toLowerCase() || "";
+
+        const status =
+            row.children[7]?.textContent.trim() || "";
+
+        const matchesSearch =
+            studentName.includes(searchValue) ||
+            rollNo.includes(searchValue) ||
+            phone.includes(searchValue);
+
+        const matchesStatus =
+            selectedStatus === "All" ||
+            status === selectedStatus;
+
+        row.style.display =
+            matchesSearch && matchesStatus ? "" : "none";
+    });
+}
+
+studentSearch.addEventListener("input", applyStudentFilters);
+statusFilter.addEventListener("change", applyStudentFilters);
+
+let currentSortColumn = null;
+let sortAscending = true;
+
+document.querySelectorAll(".sortable").forEach((header) => {
+    header.addEventListener("click", () => {
+
+        const columnIndex = Number(header.dataset.column);
+
+        if (currentSortColumn === columnIndex) {
+            sortAscending = !sortAscending;
+        } else {
+            currentSortColumn = columnIndex;
+            sortAscending = true;
+        }
+
+        const tableBody = document.getElementById("studentTableBody");
+        const rows = Array.from(tableBody.querySelectorAll("tr"));
+
+        rows.sort((rowA, rowB) => {
+
+            let valueA = rowA.children[columnIndex].textContent.trim();
+            let valueB = rowB.children[columnIndex].textContent.trim();
+
+            // ID and Roll No. numeric sorting
+            if (columnIndex === 0 || columnIndex === 3) {
+                valueA = Number(valueA);
+                valueB = Number(valueB);
+
+                return sortAscending
+                    ? valueA - valueB
+                    : valueB - valueA;
+            }
+
+            // Admission Date sorting
+            if (columnIndex === 6) {
+                valueA = new Date(valueA);
+                valueB = new Date(valueB);
+
+                return sortAscending
+                    ? valueA - valueB
+                    : valueB - valueA;
+            }
+
+            // Text sorting
+            return sortAscending
+                ? valueA.localeCompare(valueB)
+                : valueB.localeCompare(valueA);
+        });
+
+        rows.forEach(row => tableBody.appendChild(row));
+
+        // Reset all icons
+        document.querySelectorAll(".sort-icon").forEach(icon => {
+            icon.textContent = "↕";
+        });
+
+        // Show direction on selected column
+        header.querySelector(".sort-icon").textContent =
+            sortAscending ? "↑" : "↓";
+    });
+});
+
+loadStudents();
+
+loadClasses();
+</script>
+  </body>
+</html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exams | AALOR DISHA PUBLIC SCHOOL</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Arial,sans-serif;background:#f5f7fb;color:#172033}
+    .topbar{background:#17385f;color:#fff;padding:18px 28px;display:flex;justify-content:space-between;align-items:center}
+    .school-name{font-size:20px;font-weight:700}.topbar p{font-size:12px;margin-top:4px;opacity:.9}
+    .back-btn{background:#fff;color:#17385f;text-decoration:none;padding:10px 16px;border-radius:6px;font-weight:700;font-size:13px}
+    .container{max-width:1100px;margin:30px auto;padding:0 20px}
+    .page-head{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:20px}
+    .page-head h1{color:#0c3564;margin-bottom:6px}.page-head p{color:#667085;font-size:14px}
+    .add-btn,.primary{border:none;background:#17385f;color:#fff;padding:11px 17px;border-radius:8px;font-weight:700;cursor:pointer}
+    .secondary{border:1px solid #cfd6df;background:#fff;color:#17385f;padding:11px 17px;border-radius:8px;font-weight:700;cursor:pointer}
+    .notice{display:none;margin-bottom:16px;padding:13px 16px;border-radius:9px;font-size:14px;font-weight:600}
+    .notice.success{display:block;background:#ecfdf3;color:#166534;border:1px solid #bbf7d0}
+    .notice.error{display:block;background:#fff1f2;color:#b91c1c;border:1px solid #fecaca}
+    .filters{background:#fff;border:1px solid #e2e7ef;border-radius:14px;padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+    .field{display:flex;flex-direction:column;gap:7px}.field label{font-size:13px;font-weight:700;color:#334155}
+    .field input,.field select{min-height:44px;padding:10px 12px;border:1px solid #d7dee8;border-radius:9px;font-size:14px;background:#fff}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+    .stat{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:19px 20px;display:flex;justify-content:space-between;align-items:center}
+    .stat span{font-size:13px;color:#64748b;font-weight:600}.stat strong{font-size:25px;color:#123b68}
+    .table-card{background:#fff;border:1px solid #e2e7ef;border-radius:12px;overflow-x:auto}
+    table{width:100%;border-collapse:collapse;min-width:760px}th{background:#f0f4f8;color:#17385f;text-align:left;padding:14px;font-size:13px}
+    td{padding:13px 14px;border-top:1px solid #edf0f4;font-size:14px}
+    .badge{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700}
+    .upcoming{background:#e0f2fe;color:#075985}.completed{background:#dcfce7;color:#166534}.ongoing{background:#fef3c7;color:#92400e}
+    .loading{text-align:center;padding:32px;color:#667085}
+    .edit-btn{border:1px solid #17385f;background:#fff;color:#17385f;padding:7px 12px;border-radius:7px;font-weight:700;cursor:pointer}
+    .modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,.58);z-index:50;align-items:center;justify-content:center;padding:20px}
+    .modal-box{background:#fff;width:min(540px,100%);border-radius:16px;padding:24px;box-shadow:0 22px 55px rgba(0,0,0,.25)}
+    .modal-box h2{color:#17385f;margin-bottom:18px}.form-grid{display:grid;gap:14px}.actions{display:flex;gap:10px;margin-top:20px}
+    @media(max-width:650px){.page-head{align-items:flex-start;flex-direction:column}.filters,.stats{grid-template-columns:1fr}.add-btn{width:100%}}
+  </style>
+</head>
+<body>
+<header class="topbar">
+  <div><div class="school-name">AALOR DISHA PUBLIC SCHOOL</div><p>School ERP Administration</p></div>
+  <a href="admin-dashboard.html" class="back-btn">← Dashboard</a>
+</header>
+
+<main class="container">
+  <section class="page-head">
+    <div><h1>Exams</h1><p>Create and manage school examinations.</p></div>
+    <button id="addExamBtn" class="add-btn">+ Add Exam</button>
+  </section>
+
+  <div id="notice" class="notice"></div>
+
+  <section class="filters">
+    <div class="field">
+      <label for="statusFilter">Status</label>
+      <select id="statusFilter">
+        <option value="All">All Status</option>
+        <option value="Upcoming">Upcoming</option>
+        <option value="Ongoing">Ongoing</option>
+        <option value="Completed">Completed</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="searchInput">Search Exam</label>
+      <input id="searchInput" type="text" placeholder="Exam name...">
+    </div>
+  </section>
+
+  <section class="stats">
+    <div class="stat"><span>Total Exams</span><strong id="totalExams">0</strong></div>
+    <div class="stat"><span>Upcoming / Ongoing</span><strong id="activeExams">0</strong></div>
+    <div class="stat"><span>Completed</span><strong id="completedExams">0</strong></div>
+  </section>
+
+  <section class="table-card">
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Exam Name</th><th>Class</th><th>Academic Year</th><th>Start Date</th><th>End Date</th><th>Status</th><th>Action</th></tr>
+      </thead>
+      <tbody id="examBody"><tr><td colspan="8" class="loading">Loading exams...</td></tr></tbody>
+    </table>
+  </section>
+</main>
+
+<div id="examModal" class="modal">
+  <div class="modal-box">
+    <h2 id="modalTitle">Add Exam</h2>
+    <form id="examForm">
+      <input type="hidden" id="editExamId">
+      <div class="form-grid">
+        <div class="field"><label for="examName">Exam Name</label><input id="examName" required placeholder="Example: Half Yearly"></div>
+        <div class="field"><label for="examClass">Class</label><select id="examClass" required><option value="">Select Class</option></select></div>
+        <div class="field"><label for="academicYear">Academic Year</label><input id="academicYear" value="2026-27" placeholder="2026-27"></div>
+        <div class="field"><label for="examStartDate">Start Date</label><input type="date" id="examStartDate" required></div>
+        <div class="field"><label for="examEndDate">End Date</label><input type="date" id="examEndDate" required></div>
+        <div class="field"><label for="examStatus">Status</label>
+          <select id="examStatus"><option>Upcoming</option><option>Ongoing</option><option>Completed</option></select>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="primary" id="saveExamBtn" type="submit">Save Exam</button>
+        <button class="secondary" id="cancelExamBtn" type="button">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL="https://zoickuxjrwjowhotzkue.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable__i970SfH3NT8Iv_CsIYsfg_v9It3loN";
+const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+
+const examBody=document.getElementById("examBody");
+const statusFilter=document.getElementById("statusFilter");
+const searchInput=document.getElementById("searchInput");
+const examModal=document.getElementById("examModal");
+const notice=document.getElementById("notice");
+const examClass=document.getElementById("examClass");
+let exams=[], classes=[];
+
+function showNotice(msg,type="success"){
+  notice.textContent=msg; notice.className=`notice ${type}`;
+  clearTimeout(showNotice.timer);
+  showNotice.timer=setTimeout(()=>{notice.className="notice";notice.textContent=""},3500);
+}
+function prettyDate(v){
+  if(!v)return "-";
+  return new Date(v+"T00:00:00").toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});
+}
+function escapeHtml(v){
+  return String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");
+}
+function className(id){
+  const c=classes.find(x=>String(x.class_id)===String(id));
+  return c ? `${c.class_name} ${c.section||""}`.trim() : "Not Assigned";
+}
+
+async function checkAdmin(){
+  const {data:{session}}=await supabaseClient.auth.getSession();
+  if(!session){location.href="erp-login.html";return false}
+  const {data:p,error}=await supabaseClient.from("user_profiles").select("role,status").eq("user_id",session.user.id).single();
+  if(error||!p||p.role!=="ADMIN"||p.status!=="Active"){
+    await supabaseClient.auth.signOut(); location.href="erp-login.html"; return false;
+  }
+  return true;
+}
+
+async function loadClasses(){
+  const {data,error}=await supabaseClient.from("classes")
+    .select("class_id,class_name,section,status")
+    .eq("status","Active")
+    .order("class_id",{ascending:true});
+  if(error){console.error("Class load error:",error);showNotice("Classes could not be loaded.","error");return}
+  classes=data||[];
+  examClass.innerHTML='<option value="">Select Class</option>';
+  classes.forEach(c=>{
+    const o=document.createElement("option");
+    o.value=c.class_id; o.textContent=`${c.class_name} ${c.section||""}`.trim();
+    examClass.appendChild(o);
+  });
+}
+
+async function loadExams(){
+  examBody.innerHTML='<tr><td colspan="8" class="loading">Loading exams...</td></tr>';
+  const {data,error}=await supabaseClient.from("exams")
+    .select("exam_id,exam_name,academic_year,start_date,end_date,status,class_id")
+    .order("exam_id",{ascending:true});
+  if(error){
+    console.error("Exam load error:",error);
+    examBody.innerHTML='<tr><td colspan="8" class="loading">Could not load exams.</td></tr>';
+    showNotice("Could not load exams.","error"); return;
+  }
+  exams=data||[]; render();
+}
+
+function render(){
+  const q=searchInput.value.trim().toLowerCase(), sf=statusFilter.value;
+  const rows=exams.filter(e=>{
+    const searchable=`${e.exam_name||""} ${className(e.class_id)}`.toLowerCase();
+    return searchable.includes(q)&&(sf==="All"||e.status===sf);
+  });
+  examBody.innerHTML="";
+  if(!rows.length) examBody.innerHTML='<tr><td colspan="8" class="loading">No exams found.</td></tr>';
+  rows.forEach(e=>{
+    const st=e.status||"-";
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td>${e.exam_id}</td>
+      <td>${escapeHtml(e.exam_name||"-")}</td>
+      <td>${escapeHtml(className(e.class_id))}</td>
+      <td>${escapeHtml(e.academic_year||"-")}</td>
+      <td>${prettyDate(e.start_date)}</td>
+      <td>${prettyDate(e.end_date)}</td>
+      <td><span class="badge ${String(st).toLowerCase()}">${escapeHtml(st)}</span></td>
+      <td><button class="edit-btn" onclick="openEditExam(${e.exam_id})">Edit</button></td>`;
+    examBody.appendChild(tr);
+  });
+  document.getElementById("totalExams").textContent=exams.length;
+  document.getElementById("activeExams").textContent=exams.filter(e=>["Upcoming","Ongoing"].includes(e.status)).length;
+  document.getElementById("completedExams").textContent=exams.filter(e=>e.status==="Completed").length;
+}
+
+document.getElementById("addExamBtn").onclick=()=>{
+  document.getElementById("modalTitle").textContent="Add Exam";
+  document.getElementById("examForm").reset();
+  document.getElementById("academicYear").value="2026-27";
+  document.getElementById("editExamId").value="";
+  examModal.style.display="flex";
+};
+document.getElementById("cancelExamBtn").onclick=()=>examModal.style.display="none";
+examModal.addEventListener("click",e=>{if(e.target===examModal)examModal.style.display="none"});
+
+window.openEditExam=id=>{
+  const e=exams.find(x=>Number(x.exam_id)===Number(id)); if(!e)return;
+  document.getElementById("modalTitle").textContent="Edit Exam";
+  document.getElementById("editExamId").value=e.exam_id;
+  document.getElementById("examName").value=e.exam_name||"";
+  document.getElementById("examClass").value=e.class_id||"";
+  document.getElementById("academicYear").value=e.academic_year||"";
+  document.getElementById("examStartDate").value=e.start_date||"";
+  document.getElementById("examEndDate").value=e.end_date||"";
+  document.getElementById("examStatus").value=e.status||"Upcoming";
+  examModal.style.display="flex";
+};
+
+document.getElementById("examForm").addEventListener("submit",async ev=>{
+  ev.preventDefault();
+  const editId=document.getElementById("editExamId").value;
+  const start=document.getElementById("examStartDate").value;
+  const finish=document.getElementById("examEndDate").value;
+  if(finish<start){showNotice("End Date cannot be before Start Date.","error");return}
+
+  const payload={
+    exam_name:document.getElementById("examName").value.trim(),
+    class_id:Number(document.getElementById("examClass").value),
+    academic_year:document.getElementById("academicYear").value.trim(),
+    start_date:start,
+    end_date:finish,
+    status:document.getElementById("examStatus").value
+  };
+
+  const btn=document.getElementById("saveExamBtn");
+  btn.disabled=true; btn.textContent="Saving...";
+  let result;
+  if(editId) result=await supabaseClient.from("exams").update(payload).eq("exam_id",Number(editId));
+  else result=await supabaseClient.from("exams").insert([payload]);
+  btn.disabled=false; btn.textContent="Save Exam";
+
+  if(result.error){
+    console.error("Exam save error:",result.error);
+    showNotice("Exam could not be saved.","error"); return;
+  }
+  examModal.style.display="none";
+  showNotice(editId?"Exam updated successfully.":"Exam added successfully.");
+  await loadExams();
+});
+
+statusFilter.addEventListener("change",render);
+searchInput.addEventListener("input",render);
+
+(async()=>{
+  if(!await checkAdmin())return;
+  await loadClasses();
+  await loadExams();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal User Management | AALOR DISHA PUBLIC SCHOOL</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+:root{
+  --navy:#17385f;--navy2:#244d78;--bg:#f4f7fb;--text:#1e293b;
+  --muted:#64748b;--border:#dbe5ef;--white:#fff;
+}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+.topbar{
+  background:var(--navy);color:#fff;min-height:74px;display:flex;
+  align-items:center;justify-content:space-between;gap:18px;padding:12px 26px;
+  box-shadow:0 5px 20px rgba(15,23,42,.12)
+}
+.brand{display:flex;align-items:center;gap:13px}
+.logo{
+  width:48px;height:48px;border-radius:50%;background:#fff;color:var(--navy);
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px
+}
+.brand h1{font-size:18px;margin:0}.brand p{font-size:12px;margin:3px 0 0;color:#d9e7f5}
+.actions{display:flex;gap:8px}
+.btn-top{
+  border:1px solid rgba(255,255,255,.55);background:transparent;color:#fff;
+  padding:8px 13px;border-radius:8px;cursor:pointer;font-weight:700
+}
+.container{max-width:1050px;margin:auto;padding:28px 18px 42px}
+.hero{
+  background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;
+  border-radius:17px;padding:24px;box-shadow:0 12px 30px rgba(23,56,95,.18)
+}
+.hero h2{margin:0 0 7px;font-size:25px}.hero p{margin:0;color:#dce9f7;font-size:13px;line-height:1.55}
+.layout{display:grid;grid-template-columns:1.05fr .95fr;gap:18px;margin-top:20px}
+.panel{
+  background:#fff;border:1px solid var(--border);border-radius:16px;padding:22px;
+  box-shadow:0 7px 20px rgba(15,23,42,.05)
+}
+.panel h3{margin:0 0 16px;color:var(--navy);font-size:18px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px}
+.tab{
+  border:1px solid var(--border);background:#f8fbfe;color:var(--navy);
+  padding:10px;border-radius:9px;cursor:pointer;font-weight:700
+}
+.tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.field{margin-bottom:15px}
+label{display:block;font-size:12px;font-weight:700;color:var(--navy);margin-bottom:6px}
+select,input{
+  width:100%;padding:11px 12px;border:1px solid #cbd8e6;border-radius:9px;
+  background:#fff;font-size:14px;outline:none
+}
+select:focus,input:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(23,56,95,.08)}
+.password-wrap{position:relative}
+.password-wrap input{padding-right:50px}
+.toggle{
+  position:absolute;right:9px;top:50%;transform:translateY(-50%);
+  border:0;background:transparent;color:var(--navy);cursor:pointer;font-size:11px;font-weight:700
+}
+.helper{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.45}
+.primary{
+  width:100%;border:0;background:var(--navy);color:#fff;padding:12px;
+  border-radius:9px;font-weight:700;cursor:pointer
+}
+.primary:disabled{opacity:.6;cursor:not-allowed}
+.message{display:none;padding:11px 13px;border-radius:9px;margin-bottom:15px;font-size:12px;line-height:1.45}
+.message.error{display:block;background:#fff1f2;border:1px solid #fecaca;color:#b91c1c}
+.message.success{display:block;background:#f0fdf4;border:1px solid #bbf7d0;color:#166534}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.stat{border:1px solid var(--border);border-radius:11px;padding:14px;background:#fbfdff}
+.stat span{display:block;font-size:11px;color:var(--muted);margin-bottom:5px}
+.stat strong{font-size:22px;color:var(--navy)}
+.list{max-height:420px;overflow:auto;border:1px solid var(--border);border-radius:11px}
+.row{
+  padding:12px 13px;border-bottom:1px solid #e8eef5;display:flex;
+  align-items:center;justify-content:space-between;gap:12px
+}
+.row:last-child{border-bottom:0}
+.row strong{font-size:13px;color:var(--text);display:block}
+.row small{font-size:11px;color:var(--muted)}
+.badge{font-size:10px;font-weight:700;padding:5px 8px;border-radius:20px;background:#eef2f7;color:#475569}
+.badge.active{background:#ecfdf3;color:#166534}
+.badge.mapped{background:#eef4ff;color:#1d4ed8}
+.empty{padding:24px;text-align:center;color:var(--muted);font-size:12px}
+.note{
+  margin-top:16px;background:#f8fbfe;border:1px solid var(--border);border-radius:10px;
+  padding:12px 13px;font-size:11px;color:var(--muted);line-height:1.55
+}
+.loading{
+  position:fixed;inset:0;background:rgba(244,247,251,.94);display:flex;
+  align-items:center;justify-content:center;color:var(--navy);font-weight:700;z-index:20
+}
+@media(max-width:850px){.layout{grid-template-columns:1fr}}
+@media(max-width:600px){
+  .topbar{padding:10px 12px}.brand h1{font-size:13px}.brand p{display:none}
+  .logo{width:39px;height:39px;font-size:11px}.btn-top{padding:7px 9px;font-size:11px}
+  .container{padding:18px 12px 30px}.hero{padding:20px}.hero h2{font-size:21px}
+}
+</style>
+</head>
+<body>
+
+<div id="loading" class="loading">Verifying Administrator...</div>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">ADPS</div>
+    <div>
+      <h1>AALOR DISHA PUBLIC SCHOOL</h1>
+      <p>Admin Portal • User Management</p>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="btn-top" onclick="location.href='admin-dashboard.html'">Dashboard</button>
+    <button class="btn-top" id="logoutBtn">Logout</button>
+  </div>
+</header>
+
+<main class="container">
+  <section class="hero">
+    <h2>Student & Teacher Login Management</h2>
+    <p>Create portal logins without opening Supabase Authentication or manually copying UUIDs. The selected school record is mapped automatically.</p>
+  </section>
+
+  <section class="layout">
+    <div class="panel">
+      <h3>Create Portal Login</h3>
+
+      <div class="tabs">
+        <button id="studentTab" class="tab active" type="button">Student Login</button>
+        <button id="teacherTab" class="tab" type="button">Teacher Login</button>
+      </div>
+
+      <div id="message" class="message"></div>
+
+      <form id="createForm">
+        <div class="field">
+          <label id="personLabel" for="personSelect">Select Student</label>
+          <select id="personSelect" required>
+            <option value="">Loading...</option>
+          </select>
+          <div class="helper" id="personHelp">Only active students without an existing portal mapping are available.</div>
+        </div>
+
+        <div class="field">
+          <label for="email">Login Email</label>
+          <input id="email" type="email" autocomplete="off" placeholder="student@example.com" required>
+        </div>
+
+        <div class="field">
+          <label for="password">Temporary Password</label>
+          <div class="password-wrap">
+            <input id="password" type="password" autocomplete="new-password" minlength="8" required>
+            <button id="showPassword" class="toggle" type="button">Show</button>
+          </div>
+          <div class="helper">Minimum 8 characters. Share the temporary password privately and ask the user to change it after login.</div>
+        </div>
+
+        <button id="createBtn" class="primary" type="submit">Create Student Login</button>
+      </form>
+
+      <div class="note">
+        The browser never receives the Supabase service-role key. The secure Edge Function verifies that the caller is an Active ADMIN before creating an Auth user and mapping it to the selected Student or Teacher.
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Portal Mapping Overview</h3>
+
+      <div class="stats">
+        <div class="stat"><span>Student Logins</span><strong id="studentCount">0</strong></div>
+        <div class="stat"><span>Teacher Logins</span><strong id="teacherCount">0</strong></div>
+      </div>
+
+      <div id="mappingList" class="list">
+        <div class="empty">Loading portal mappings...</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+const SUPABASE_URL='https://zoickuxjrwjowhotzkue.supabase.co';
+const SUPABASE_KEY='sb_publishable__i970SfH3NT8Iv_CsIYsfg_v9It3loN';
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+let mode='STUDENT';
+let students=[];
+let teachers=[];
+let mappings=[];
+
+const loading=document.getElementById('loading');
+const message=document.getElementById('message');
+const personSelect=document.getElementById('personSelect');
+const personLabel=document.getElementById('personLabel');
+const personHelp=document.getElementById('personHelp');
+const createBtn=document.getElementById('createBtn');
+
+function esc(v){
+  return String(v ?? '').replace(/[&<>"']/g,c=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+function showMessage(text,type){
+  message.textContent=text;
+  message.className='message '+type;
+}
+function clearMessage(){message.className='message';message.textContent=''}
+
+async function verifyAdmin(){
+  const {data:{session},error}=await db.auth.getSession();
+  if(error || !session){
+    location.href='erp-login.html';
+    return false;
+  }
+
+  const {data:profile,error:profileError}=await db
+    .from('user_profiles')
+    .select('role,status')
+    .eq('user_id',session.user.id)
+    .single();
+
+  if(profileError || !profile || profile.role!=='ADMIN' || profile.status!=='Active'){
+    await db.auth.signOut();
+    location.href='erp-login.html';
+    return false;
+  }
+  return true;
+}
+
+async function loadData(){
+  const ok=await verifyAdmin();
+  if(!ok) return;
+
+  const [
+    {data:studentRows,error:studentError},
+    {data:teacherRows,error:teacherError},
+    {data:profileRows,error:profileError}
+  ]=await Promise.all([
+    db.from('students')
+      .select('student_id,student_name,roll_no,status,class_id')
+      .eq('status','Active')
+      .order('student_name'),
+    db.from('teachers')
+      .select('teacher_id,teacher_name,designation,status')
+      .eq('status','Active')
+      .order('teacher_name'),
+    db.from('user_profiles')
+      .select('user_id,role,status,student_id,teacher_id')
+      .in('role',['STUDENT','TEACHER'])
+  ]);
+
+  if(studentError || teacherError || profileError){
+    showMessage('Required Admin data could not be loaded. Please verify Admin RLS policies.','error');
+    loading.style.display='none';
+    return;
+  }
+
+  students=studentRows || [];
+  teachers=teacherRows || [];
+  mappings=profileRows || [];
+
+  renderMode();
+  renderMappings();
+  loading.style.display='none';
+}
+
+function mappedStudentIds(){
+  return new Set(mappings.filter(x=>x.student_id!=null).map(x=>Number(x.student_id)));
+}
+function mappedTeacherIds(){
+  return new Set(mappings.filter(x=>x.teacher_id!=null).map(x=>Number(x.teacher_id)));
+}
+
+function renderMode(){
+  clearMessage();
+
+  const isStudent=mode==='STUDENT';
+  document.getElementById('studentTab').classList.toggle('active',isStudent);
+  document.getElementById('teacherTab').classList.toggle('active',!isStudent);
+
+  personLabel.textContent=isStudent?'Select Student':'Select Teacher';
+  personHelp.textContent=isStudent
+    ? 'Only active students without an existing portal mapping are available.'
+    : 'Only active teachers without an existing portal mapping are available.';
+  createBtn.textContent=isStudent?'Create Student Login':'Create Teacher Login';
+
+  const mapped=isStudent?mappedStudentIds():mappedTeacherIds();
+  const source=isStudent?students:teachers;
+  const available=source.filter(p=>!mapped.has(Number(isStudent?p.student_id:p.teacher_id)));
+
+  const options=available.map(p=>{
+    const id=isStudent?p.student_id:p.teacher_id;
+    const name=isStudent?p.student_name:p.teacher_name;
+    const extra=isStudent
+      ? ('Roll '+(p.roll_no||'—'))
+      : (p.designation||'Teacher');
+    return `<option value="${esc(id)}">${esc(name)} • ${esc(extra)}</option>`;
+  }).join('');
+
+  personSelect.innerHTML='<option value="">Select...</option>'+options;
+
+  if(!available.length){
+    personSelect.innerHTML='<option value="">No unmapped active '+(isStudent?'students':'teachers')+' found</option>';
+  }
+}
+
+function renderMappings(){
+  const studentMappings=mappings.filter(x=>x.role==='STUDENT');
+  const teacherMappings=mappings.filter(x=>x.role==='TEACHER');
+
+  document.getElementById('studentCount').textContent=studentMappings.length;
+  document.getElementById('teacherCount').textContent=teacherMappings.length;
+
+  const rows=[
+    ...studentMappings.map(m=>{
+      const p=students.find(x=>Number(x.student_id)===Number(m.student_id));
+      return {
+        role:'STUDENT',
+        name:p?.student_name || ('Student ID '+m.student_id),
+        id:m.student_id,
+        status:m.status
+      };
+    }),
+    ...teacherMappings.map(m=>{
+      const p=teachers.find(x=>Number(x.teacher_id)===Number(m.teacher_id));
+      return {
+        role:'TEACHER',
+        name:p?.teacher_name || ('Teacher ID '+m.teacher_id),
+        id:m.teacher_id,
+        status:m.status
+      };
+    })
+  ];
+
+  const list=document.getElementById('mappingList');
+  if(!rows.length){
+    list.innerHTML='<div class="empty">No Student or Teacher portal mappings found.</div>';
+    return;
+  }
+
+  list.innerHTML=rows.map(r=>`
+    <div class="row">
+      <div>
+        <strong>${esc(r.name)}</strong>
+        <small>${esc(r.role)} • ID ${esc(r.id)}</small>
+      </div>
+      <div>
+        <span class="badge mapped">Mapped</span>
+        <span class="badge ${String(r.status).toLowerCase()==='active'?'active':''}">${esc(r.status||'—')}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+document.getElementById('studentTab').addEventListener('click',()=>{mode='STUDENT';renderMode()});
+document.getElementById('teacherTab').addEventListener('click',()=>{mode='TEACHER';renderMode()});
+
+document.getElementById('showPassword').addEventListener('click',()=>{
+  const input=document.getElementById('password');
+  const show=input.type==='password';
+  input.type=show?'text':'password';
+  document.getElementById('showPassword').textContent=show?'Hide':'Show';
+});
+
+document.getElementById('createForm').addEventListener('submit',async(e)=>{
+  e.preventDefault();
+  clearMessage();
+
+  const selected=personSelect.value;
+  const email=document.getElementById('email').value.trim();
+  const password=document.getElementById('password').value;
+
+  if(!selected){
+    showMessage('Please select a '+(mode==='STUDENT'?'student':'teacher')+'.','error');
+    return;
+  }
+  if(password.length<8){
+    showMessage('Temporary password must contain at least 8 characters.','error');
+    return;
+  }
+
+  createBtn.disabled=true;
+  createBtn.textContent='Creating Login...';
+
+  const body={
+    role:mode,
+    email,
+    password,
+    student_id:mode==='STUDENT'?Number(selected):null,
+    teacher_id:mode==='TEACHER'?Number(selected):null
+  };
+
+  const {data,error}=await db.functions.invoke('admin-user-management',{body});
+
+  if(error){
+    let text='Portal login could not be created.';
+    try{
+      if(error.context){
+        const payload=await error.context.json();
+        if(payload?.message) text=payload.message;
+      }
+    }catch(_){}
+    showMessage(text,'error');
+    createBtn.disabled=false;
+    createBtn.textContent=mode==='STUDENT'?'Create Student Login':'Create Teacher Login';
+    return;
+  }
+
+  if(!data?.success){
+    showMessage(data?.message || 'Portal login could not be created.','error');
+    createBtn.disabled=false;
+    createBtn.textContent=mode==='STUDENT'?'Create Student Login':'Create Teacher Login';
+    return;
+  }
+
+  showMessage(data.message || 'Portal login created successfully.','success');
+  document.getElementById('email').value='';
+  document.getElementById('password').value='';
+  document.getElementById('password').type='password';
+  document.getElementById('showPassword').textContent='Show';
+
+  const {data:profileRows}=await db
+    .from('user_profiles')
+    .select('user_id,role,status,student_id,teacher_id')
+    .in('role',['STUDENT','TEACHER']);
+
+  mappings=profileRows || mappings;
+  renderMode();
+  renderMappings();
+
+  createBtn.disabled=false;
+  createBtn.textContent=mode==='STUDENT'?'Create Student Login':'Create Teacher Login';
+});
+
+document.getElementById('logoutBtn').addEventListener('click',async()=>{
+  await db.auth.signOut();
+  sessionStorage.clear();
+  location.href='erp-login.html';
+});
+
+loadData();
+</script>
+</body>
+</html>

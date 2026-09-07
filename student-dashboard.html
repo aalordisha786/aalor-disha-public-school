@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Dashboard | AALOR DISHA PUBLIC SCHOOL</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+:root{
+  --navy:#17385f;
+  --navy2:#244d78;
+  --bg:#f4f7fb;
+  --text:#1e293b;
+  --muted:#64748b;
+  --border:#dbe5ef;
+}
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+.topbar{
+  background:var(--navy);
+  color:#fff;
+  min-height:76px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  padding:14px 28px;
+  box-shadow:0 5px 20px rgba(15,23,42,.12);
+}
+.brand{display:flex;align-items:center;gap:14px}
+.logo{
+  width:50px;height:50px;border-radius:50%;
+  background:#fff;color:var(--navy);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:15px;
+}
+.brand h1{font-size:19px;margin:0}
+.brand p{font-size:12px;margin:4px 0 0;color:#d9e7f5}
+.logout{
+  border:1px solid rgba(255,255,255,.5);
+  background:transparent;color:#fff;
+  padding:9px 16px;border-radius:9px;
+  cursor:pointer;font-weight:700;
+}
+.container{max-width:1180px;margin:auto;padding:28px 20px 40px}
+.welcome{
+  background:linear-gradient(135deg,var(--navy),var(--navy2));
+  color:#fff;border-radius:18px;padding:28px;
+  box-shadow:0 12px 30px rgba(23,56,95,.18);
+}
+.welcome h2{margin:0 0 8px;font-size:27px}
+.welcome p{margin:0;color:#dce9f7;line-height:1.6}
+.profile-strip{
+  margin-top:18px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+.profile-chip{
+  background:rgba(255,255,255,.11);
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:12px;
+  padding:13px 15px;
+}
+.profile-chip span{display:block;font-size:11px;color:#dce9f7;margin-bottom:5px}
+.profile-chip strong{font-size:14px}
+.section-title{margin:28px 0 14px;font-size:19px;color:var(--navy)}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+}
+.card{
+  display:block;
+  text-decoration:none;
+  color:inherit;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:15px;
+  padding:20px;
+  min-height:160px;
+  box-shadow:0 7px 20px rgba(15,23,42,.05);
+  transition:.2s ease;
+}
+.card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 12px 28px rgba(15,23,42,.09);
+  border-color:#c7d6e5;
+}
+.icon{
+  width:42px;height:42px;border-radius:11px;
+  display:flex;align-items:center;justify-content:center;
+  background:#edf4fb;color:var(--navy);
+  font-size:20px;margin-bottom:15px;
+}
+.card h3{margin:0 0 7px;font-size:16px;color:var(--navy)}
+.card p{margin:0;color:var(--muted);font-size:13px;line-height:1.55}
+.tag{
+  display:inline-block;margin-top:14px;
+  font-size:11px;font-weight:700;
+  background:#eef4ff;color:#1d4ed8;
+  border-radius:20px;padding:5px 9px;
+}
+.message{
+  margin-top:18px;
+  display:none;
+  padding:12px 14px;
+  border-radius:10px;
+  font-size:13px;
+}
+.message.error{display:block;background:#fff1f2;border:1px solid #fecaca;color:#b91c1c}
+.loading{
+  position:fixed;inset:0;background:rgba(244,247,251,.92);
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:700;color:var(--navy);
+  z-index:20;
+}
+.footer{text-align:center;color:#8492a6;font-size:12px;padding-top:28px}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:650px){
+  .topbar{padding:12px 16px}
+  .brand h1{font-size:15px}
+  .brand p{display:none}
+  .logo{width:42px;height:42px;font-size:12px}
+  .container{padding:20px 14px 32px}
+  .welcome{padding:22px}
+  .welcome h2{font-size:22px}
+  .profile-strip{grid-template-columns:1fr}
+  .grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div id="loading" class="loading">Loading Student Portal...</div>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">ADPS</div>
+    <div>
+      <h1>AALOR DISHA PUBLIC SCHOOL</h1>
+      <p>Student Portal</p>
+    </div>
+  </div>
+  <button class="logout" id="logoutBtn">Logout</button>
+</header>
+
+<main class="container">
+  <section class="welcome">
+    <h2 id="welcomeName">Welcome, Student</h2>
+    <p>Your personal school dashboard. Use the cards below to open your own school information.</p>
+
+    <div class="profile-strip">
+      <div class="profile-chip">
+        <span>Student Name</span>
+        <strong id="studentName">—</strong>
+      </div>
+      <div class="profile-chip">
+        <span>Student ID</span>
+        <strong id="studentId">—</strong>
+      </div>
+      <div class="profile-chip">
+        <span>Status</span>
+        <strong id="studentStatus">—</strong>
+      </div>
+    </div>
+  </section>
+
+  <div id="message" class="message"></div>
+
+  <h2 class="section-title">My School Information</h2>
+
+  <section class="grid">
+    <a class="card" href="student-profile.html">
+      <div class="icon">👤</div>
+      <h3>My Profile</h3>
+      <p>View your personal student information, class, roll number and guardian details.</p>
+      <span class="tag">Open Profile</span>
+    </a>
+
+    <a class="card" href="student-attendance-view.html">
+      <div class="icon">📅</div>
+      <h3>Attendance</h3>
+      <p>View your saved attendance history, Present/Absent/Leave status and percentage.</p>
+      <span class="tag">View Attendance</span>
+    </a>
+
+    <a class="card" href="student-fees.html">
+      <div class="icon">₹</div>
+      <h3>Fees</h3>
+      <p>View fee due, paid amount, pending balance, payment mode and payment history.</p>
+      <span class="tag">View Fees</span>
+    </a>
+
+    <a class="card" href="student-exams.html">
+      <div class="icon">📝</div>
+      <h3>Exams</h3>
+      <p>View exams assigned to your class, academic year, dates and current status.</p>
+      <span class="tag">View Exams</span>
+    </a>
+
+    <a class="card" href="student-results.html">
+      <div class="icon">📊</div>
+      <h3>Results</h3>
+      <p>View subject-wise marks, total, percentage, grade and PASS/FAIL status.</p>
+      <span class="tag">View Results</span>
+    </a>
+
+    <a class="card" href="student-report-card.html">
+      <div class="icon">📄</div>
+      <h3>Report Card</h3>
+      <p>View your printable report card and save it as a PDF for your records.</p>
+      <span class="tag">View / Download</span>
+    </a>
+
+    <a class="card" href="student-change-password.html">
+      <div class="icon">🔐</div>
+      <h3>Change Password</h3>
+      <p>Securely change your Student Portal login password using Supabase Auth.</p>
+      <span class="tag">Change Password</span>
+    </a>
+  </section>
+
+  <div class="footer">AALOR DISHA PUBLIC SCHOOL • Student ERP Portal</div>
+</main>
+
+<script>
+const SUPABASE_URL='https://zoickuxjrwjowhotzkue.supabase.co';
+const SUPABASE_KEY='sb_publishable__i970SfH3NT8Iv_CsIYsfg_v9It3loN';
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+const loading=document.getElementById('loading');
+const message=document.getElementById('message');
+
+function showError(text){
+  message.textContent=text;
+  message.className='message error';
+}
+
+async function loadStudent(){
+  const {data:{session},error:sessionError}=await db.auth.getSession();
+
+  if(sessionError || !session){
+    window.location.href='student-login.html';
+    return;
+  }
+
+  const uid=session.user.id;
+
+  const {data:profile,error:profileError}=await db
+    .from('user_profiles')
+    .select('role,status,student_id')
+    .eq('user_id',uid)
+    .single();
+
+  if(
+    profileError ||
+    !profile ||
+    profile.role!=='STUDENT' ||
+    profile.status!=='Active' ||
+    !profile.student_id
+  ){
+    await db.auth.signOut();
+    window.location.href='student-login.html';
+    return;
+  }
+
+  const {data:student,error:studentError}=await db
+    .from('students')
+    .select('student_id,student_name,status')
+    .eq('student_id',profile.student_id)
+    .single();
+
+  if(studentError || !student){
+    showError('Student profile could not be loaded. Please contact the school administrator.');
+    loading.style.display='none';
+    return;
+  }
+
+  document.getElementById('welcomeName').textContent='Welcome, '+student.student_name;
+  document.getElementById('studentName').textContent=student.student_name || '—';
+  document.getElementById('studentId').textContent=student.student_id ?? '—';
+  document.getElementById('studentStatus').textContent=student.status || '—';
+
+  sessionStorage.setItem('student_id',String(student.student_id));
+  sessionStorage.setItem('student_name',student.student_name || 'Student');
+
+  loading.style.display='none';
+}
+
+document.getElementById('logoutBtn').addEventListener('click',async()=>{
+  await db.auth.signOut();
+  sessionStorage.clear();
+  window.location.href='student-login.html';
+});
+
+loadStudent();
+</script>
+</body>
+</html>

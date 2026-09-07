@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Login | AALOR DISHA PUBLIC SCHOOL</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#eef5fb,#f9fbfd);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;color:#1e293b}
+.card{width:min(900px,100%);background:#fff;border:1px solid #dbe7f3;border-radius:18px;box-shadow:0 20px 50px rgba(15,23,42,.12);display:grid;grid-template-columns:1fr 1fr;overflow:hidden}
+.left{background:#17385f;color:#fff;padding:42px;display:flex;flex-direction:column;justify-content:center}
+.logo-circle{width:78px;height:78px;border-radius:50%;background:#fff;color:#17385f;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px;margin-bottom:18px}
+.left h1{margin:0 0 8px;font-size:28px;line-height:1.2}
+.left p{margin:0;color:#d9e7f5;line-height:1.6}
+.right{padding:42px}
+.right h2{margin:0;color:#17385f;font-size:26px}
+.sub{margin:7px 0 24px;color:#64748b;font-size:14px}
+.field{margin-bottom:16px}
+label{display:block;font-size:13px;font-weight:700;color:#334155;margin-bottom:7px}
+input{width:100%;padding:12px 13px;border:1px solid #cfd8e3;border-radius:9px;font-size:14px;outline:none}
+input:focus{border-color:#17385f;box-shadow:0 0 0 3px rgba(23,56,95,.08)}
+button{width:100%;border:0;border-radius:9px;padding:12px 14px;background:#17385f;color:#fff;font-weight:700;cursor:pointer;font-size:14px}
+button:disabled{opacity:.65;cursor:not-allowed}
+.notice{display:none;margin-bottom:15px;padding:11px 12px;border-radius:8px;font-size:13px}
+.notice.error{display:block;background:#fff1f2;color:#b91c1c;border:1px solid #fecaca}
+.notice.success{display:block;background:#ecfdf3;color:#166534;border:1px solid #bbf7d0}
+.note{margin-top:16px;font-size:12px;color:#64748b;line-height:1.5}
+@media(max-width:760px){.card{grid-template-columns:1fr}.left{padding:28px}.right{padding:28px}}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="left">
+    <div class="logo-circle">ADPS</div>
+    <h1>AALOR DISHA PUBLIC SCHOOL</h1>
+    <p>Student Portal<br>Attendance • Fees • Exams • Results</p>
+  </div>
+
+  <div class="right">
+    <h2>Student Login</h2>
+    <div class="sub">Sign in with the student account created by the school.</div>
+
+    <div id="notice" class="notice"></div>
+
+    <form id="loginForm">
+      <div class="field">
+        <label>Email Address</label>
+        <input id="email" type="email" autocomplete="username" placeholder="student@example.com" required>
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <input id="password" type="password" autocomplete="current-password" placeholder="Enter password" required>
+      </div>
+
+      <button id="loginBtn" type="submit">Login to Student Portal</button>
+    </form>
+
+    <div class="note">Only users mapped with role <b>STUDENT</b>, status <b>Active</b>, and a valid <b>student_id</b> can access this portal.</div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL='https://zoickuxjrwjowhotzkue.supabase.co';
+const SUPABASE_KEY='sb_publishable__i970SfH3NT8Iv_CsIYsfg_v9It3loN';
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+const form=document.getElementById('loginForm');
+const notice=document.getElementById('notice');
+const btn=document.getElementById('loginBtn');
+
+function showNotice(message,type='error'){
+  notice.textContent=message;
+  notice.className='notice '+type;
+}
+
+form.addEventListener('submit',async(e)=>{
+  e.preventDefault();
+  notice.className='notice';
+  btn.disabled=true;
+  btn.textContent='Checking...';
+
+  const email=document.getElementById('email').value.trim();
+  const password=document.getElementById('password').value;
+
+  const {data:authData,error:authError}=await db.auth.signInWithPassword({email,password});
+
+  if(authError || !authData?.user){
+    showNotice('Invalid email or password.');
+    btn.disabled=false;
+    btn.textContent='Login to Student Portal';
+    return;
+  }
+
+  const uid=authData.user.id;
+
+  const {data:profile,error:profileError}=await db
+    .from('user_profiles')
+    .select('role,status,student_id')
+    .eq('user_id',uid)
+    .single();
+
+  if(profileError || !profile){
+    await db.auth.signOut();
+    showNotice('Student profile mapping was not found.');
+    btn.disabled=false;
+    btn.textContent='Login to Student Portal';
+    return;
+  }
+
+  if(profile.role!=='STUDENT' || profile.status!=='Active' || !profile.student_id){
+    await db.auth.signOut();
+    showNotice('This account is not authorized for the Student Portal.');
+    btn.disabled=false;
+    btn.textContent='Login to Student Portal';
+    return;
+  }
+
+  const {data:student,error:studentError}=await db
+    .from('students')
+    .select('student_id,student_name,status')
+    .eq('student_id',profile.student_id)
+    .single();
+
+  if(studentError || !student || String(student.status).toLowerCase()!=='active'){
+    await db.auth.signOut();
+    showNotice('Student record is not active or could not be loaded.');
+    btn.disabled=false;
+    btn.textContent='Login to Student Portal';
+    return;
+  }
+
+  sessionStorage.setItem('student_id',String(profile.student_id));
+  sessionStorage.setItem('student_name',student.student_name||'Student');
+
+  showNotice('Login successful. Opening Student Portal...','success');
+  setTimeout(()=>{window.location.href='student-dashboard.html';},500);
+});
+</script>
+</body>
+</html>

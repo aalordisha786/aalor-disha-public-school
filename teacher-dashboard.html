@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teacher Dashboard | AALOR DISHA PUBLIC SCHOOL</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+:root{
+  --navy:#17385f;--navy2:#244d78;--bg:#f4f7fb;--text:#1e293b;
+  --muted:#64748b;--border:#dbe5ef
+}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+.topbar{
+  background:var(--navy);color:#fff;min-height:74px;display:flex;
+  align-items:center;justify-content:space-between;gap:18px;padding:12px 26px;
+  box-shadow:0 5px 20px rgba(15,23,42,.12)
+}
+.brand{display:flex;align-items:center;gap:13px}
+.logo{
+  width:48px;height:48px;border-radius:50%;background:#fff;color:var(--navy);
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px
+}
+.brand h1{font-size:18px;margin:0}.brand p{font-size:12px;margin:3px 0 0;color:#d9e7f5}
+.logout{
+  border:1px solid rgba(255,255,255,.55);background:transparent;color:#fff;
+  padding:8px 13px;border-radius:8px;cursor:pointer;font-weight:700
+}
+.container{max-width:1140px;margin:auto;padding:28px 18px 42px}
+.hero{
+  background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;
+  border-radius:17px;padding:24px;box-shadow:0 12px 30px rgba(23,56,95,.18)
+}
+.hero h2{margin:0 0 7px;font-size:25px}.hero p{margin:0;color:#dce9f7;font-size:13px}
+.profile-strip{
+  margin-top:17px;display:grid;grid-template-columns:repeat(4,1fr);gap:11px
+}
+.chip{
+  background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.18);
+  border-radius:11px;padding:12px 13px
+}
+.chip span{display:block;font-size:10px;color:#dce9f7;margin-bottom:5px}
+.chip strong{font-size:13px}
+.section-title{margin:27px 0 13px;color:var(--navy);font-size:19px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{
+  display:block;text-decoration:none;color:inherit;background:#fff;border:1px solid var(--border);
+  border-radius:15px;padding:20px;min-height:155px;box-shadow:0 7px 20px rgba(15,23,42,.05);
+  transition:.2s ease
+}
+.card:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(15,23,42,.09);border-color:#c7d6e5}
+.icon{
+  width:42px;height:42px;border-radius:11px;display:flex;align-items:center;
+  justify-content:center;background:#edf4fb;color:var(--navy);font-size:20px;margin-bottom:14px
+}
+.card h3{margin:0 0 7px;color:var(--navy);font-size:16px}
+.card p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
+.tag{display:inline-block;margin-top:13px;font-size:11px;font-weight:700;background:#eef4ff;color:#1d4ed8;border-radius:20px;padding:5px 9px}
+.message{display:none;margin-top:18px;padding:12px 14px;border-radius:10px;font-size:13px}
+.message.error{display:block;background:#fff1f2;border:1px solid #fecaca;color:#b91c1c}
+.loading{
+  position:fixed;inset:0;background:rgba(244,247,251,.94);display:flex;align-items:center;
+  justify-content:center;color:var(--navy);font-weight:700;z-index:20
+}
+.footer{text-align:center;color:#8492a6;font-size:12px;padding-top:27px}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}.profile-strip{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:650px){
+  .topbar{padding:10px 12px}.brand h1{font-size:13px}.brand p{display:none}
+  .logo{width:39px;height:39px;font-size:11px}.logout{padding:7px 9px;font-size:11px}
+  .container{padding:18px 12px 30px}.hero{padding:20px}.hero h2{font-size:21px}
+  .profile-strip{grid-template-columns:1fr}.grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div id="loading" class="loading">Loading Teacher Portal...</div>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">ADPS</div>
+    <div>
+      <h1>AALOR DISHA PUBLIC SCHOOL</h1>
+      <p>Teacher Portal</p>
+    </div>
+  </div>
+  <button class="logout" id="logoutBtn">Logout</button>
+</header>
+
+<main class="container">
+  <section class="hero">
+    <h2 id="welcomeName">Welcome, Teacher</h2>
+    <p>Your personal teacher dashboard. Use the cards below to access your school information.</p>
+
+    <div class="profile-strip">
+      <div class="chip"><span>Teacher Name</span><strong id="teacherName">—</strong></div>
+      <div class="chip"><span>Teacher ID</span><strong id="teacherId">—</strong></div>
+      <div class="chip"><span>Designation</span><strong id="designation">—</strong></div>
+      <div class="chip"><span>Status</span><strong id="teacherStatus">—</strong></div>
+    </div>
+  </section>
+
+  <div id="message" class="message"></div>
+
+  <h2 class="section-title">My Teacher Information</h2>
+
+  <section class="grid">
+    <a class="card" href="teacher-profile.html">
+      <div class="icon">👤</div>
+      <h3>My Profile</h3>
+      <p>View your teacher profile, contact details, qualification and joining information.</p>
+      <span class="tag">Open Profile</span>
+    </a>
+
+    <a class="card" href="teacher-attendance-view.html">
+      <div class="icon">📅</div>
+      <h3>My Attendance</h3>
+      <p>View your own attendance history, Present/Absent/Leave status and percentage.</p>
+      <span class="tag">View Attendance</span>
+    </a>
+
+    <a class="card" href="teacher-salary.html">
+      <div class="icon">₹</div>
+      <h3>Salary & Pay Slip</h3>
+      <p>View your salary payment history, remaining amount and printable pay slips.</p>
+      <span class="tag">View Salary</span>
+    </a>
+
+    <a class="card" href="teacher-change-password.html">
+      <div class="icon">🔐</div>
+      <h3>Change Password</h3>
+      <p>Securely change your Teacher Portal login password.</p>
+      <span class="tag">Change Password</span>
+    </a>
+  </section>
+
+  <div class="footer">AALOR DISHA PUBLIC SCHOOL • Teacher ERP Portal</div>
+</main>
+
+<script>
+const SUPABASE_URL='https://zoickuxjrwjowhotzkue.supabase.co';
+const SUPABASE_KEY='sb_publishable__i970SfH3NT8Iv_CsIYsfg_v9It3loN';
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+const loading=document.getElementById('loading');
+const message=document.getElementById('message');
+
+function showError(text){
+  message.textContent=text;
+  message.className='message error';
+}
+
+async function loadTeacher(){
+  const {data:{session},error:sessionError}=await db.auth.getSession();
+
+  if(sessionError || !session){
+    location.href='teacher-login.html';
+    return;
+  }
+
+  const uid=session.user.id;
+
+  const {data:profile,error:profileError}=await db
+    .from('user_profiles')
+    .select('role,status,teacher_id')
+    .eq('user_id',uid)
+    .single();
+
+  if(
+    profileError ||
+    !profile ||
+    profile.role!=='TEACHER' ||
+    profile.status!=='Active' ||
+    !profile.teacher_id
+  ){
+    await db.auth.signOut();
+    location.href='teacher-login.html';
+    return;
+  }
+
+  const {data:teacher,error:teacherError}=await db
+    .from('teachers')
+    .select('teacher_id,teacher_name,designation,status')
+    .eq('teacher_id',profile.teacher_id)
+    .single();
+
+  if(teacherError || !teacher){
+    showError('Teacher profile could not be loaded. Please contact the school administrator.');
+    loading.style.display='none';
+    return;
+  }
+
+  document.getElementById('welcomeName').textContent='Welcome, '+teacher.teacher_name;
+  document.getElementById('teacherName').textContent=teacher.teacher_name || '—';
+  document.getElementById('teacherId').textContent=teacher.teacher_id ?? '—';
+  document.getElementById('designation').textContent=teacher.designation || '—';
+  document.getElementById('teacherStatus').textContent=teacher.status || '—';
+
+  sessionStorage.setItem('teacher_id',String(teacher.teacher_id));
+  sessionStorage.setItem('teacher_name',teacher.teacher_name || 'Teacher');
+
+  loading.style.display='none';
+}
+
+document.getElementById('logoutBtn').addEventListener('click',async()=>{
+  await db.auth.signOut();
+  sessionStorage.clear();
+  location.href='teacher-login.html';
+});
+
+loadTeacher();
+</script>
+</body>
+</html>

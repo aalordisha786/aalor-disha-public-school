@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Report Card | AALOR DISHA PUBLIC SCHOOL</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+:root{
+  --navy:#17385f;
+  --navy2:#244d78;
+  --bg:#f4f7fb;
+  --text:#1e293b;
+  --muted:#64748b;
+  --border:#dbe5ef;
+}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+.topbar{
+  background:var(--navy);color:#fff;min-height:72px;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:18px;padding:12px 26px;box-shadow:0 5px 20px rgba(15,23,42,.12)
+}
+.brand{display:flex;align-items:center;gap:13px}
+.logo{
+  width:48px;height:48px;border-radius:50%;background:#fff;color:var(--navy);
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px
+}
+.brand h1{font-size:18px;margin:0}
+.brand p{font-size:12px;margin:3px 0 0;color:#d9e7f5}
+.actions{display:flex;gap:9px;flex-wrap:wrap}
+.btn{
+  border:1px solid rgba(255,255,255,.55);background:transparent;color:#fff;
+  padding:9px 14px;border-radius:9px;cursor:pointer;font-weight:700
+}
+.btn.primary{background:#fff;color:var(--navy);border-color:#fff}
+.container{max-width:1000px;margin:auto;padding:26px 18px 42px}
+.controls{
+  background:#fff;border:1px solid var(--border);border-radius:14px;
+  padding:15px 18px;margin-bottom:18px;display:flex;align-items:center;
+  gap:12px;justify-content:space-between
+}
+.controls label{font-size:13px;font-weight:700;color:var(--navy)}
+.controls select{
+  min-width:260px;padding:10px 12px;border:1px solid #ccd8e5;border-radius:9px;
+  background:#fff;color:var(--text)
+}
+.report{
+  background:#fff;border:1px solid #cfdbe8;border-radius:14px;
+  padding:28px 30px;box-shadow:0 10px 28px rgba(15,23,42,.07)
+}
+.school-head{text-align:center;border-bottom:2px solid var(--navy);padding-bottom:15px}
+.school-logo{
+  width:62px;height:62px;border:2px solid var(--navy);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;margin:0 auto 8px;
+  color:var(--navy);font-weight:800;font-size:17px
+}
+.school-head h1{margin:0;color:var(--navy);font-size:25px}
+.school-head p{margin:6px 0 0;font-size:12px;color:#53657a}
+.title{text-align:center;margin:16px 0 15px}
+.title h2{margin:0;color:var(--navy);font-size:21px}
+.title p{margin:5px 0 0;color:var(--muted);font-size:12px}
+.info-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:9px 24px;
+  border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:16px
+}
+.info{font-size:12px;color:var(--muted)}
+.info strong{display:block;color:var(--text);font-size:13px;margin-top:4px}
+table{width:100%;border-collapse:collapse;margin-top:8px}
+th,td{border:1px solid #d9e3ed;padding:10px 9px;text-align:left;font-size:12px}
+th{background:#f3f7fb;color:var(--navy)}
+.summary{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  border:1px solid var(--border);border-radius:10px;margin-top:14px;overflow:hidden
+}
+.sum{padding:12px;text-align:center;border-right:1px solid var(--border);font-size:11px;color:var(--muted)}
+.sum:last-child{border-right:0}
+.sum strong{display:block;color:var(--navy);font-size:15px;margin-top:5px}
+.status-pass{color:#166534!important}.status-fail{color:#b91c1c!important}
+.signatures{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:38px;text-align:center}
+.sign{padding-top:8px;border-top:1px solid #64748b;font-size:11px;color:#475569}
+.footer{text-align:center;margin-top:20px;color:#7b8ba0;font-size:10px}
+.message{display:none;padding:12px 14px;border-radius:10px;margin-bottom:15px;font-size:13px}
+.message.error{display:block;background:#fff1f2;border:1px solid #fecaca;color:#b91c1c}
+.empty{text-align:center;padding:50px 15px;color:var(--muted);background:#fff;border:1px solid var(--border);border-radius:14px}
+.loading{
+  position:fixed;inset:0;background:rgba(244,247,251,.95);display:flex;
+  align-items:center;justify-content:center;font-weight:700;color:var(--navy);z-index:20
+}
+@media(max-width:650px){
+  .topbar{padding:11px 13px}
+  .brand h1{font-size:14px}.brand p{display:none}
+  .logo{width:40px;height:40px;font-size:11px}
+  .btn{padding:8px 9px;font-size:11px}
+  .container{padding:16px 10px 28px}
+  .controls{align-items:stretch;flex-direction:column}
+  .controls select{min-width:0;width:100%}
+  .report{padding:18px 13px}
+  .school-head h1{font-size:20px}
+  .info-grid{grid-template-columns:1fr 1fr;gap:9px 12px}
+  .summary{grid-template-columns:repeat(2,1fr)}
+  .sum:nth-child(2){border-right:0}
+  .sum:nth-child(-n+2){border-bottom:1px solid var(--border)}
+  .signatures{gap:12px}
+}
+@page{size:A4 portrait;margin:8mm}
+@media print{
+  body{background:#fff}
+  .topbar,.controls,.message,.empty,.loading{display:none!important}
+  .container{max-width:none;padding:0;margin:0}
+  .report{
+    box-shadow:none;border:0;border-radius:0;padding:8mm 9mm;
+    width:100%;margin:0;page-break-inside:avoid
+  }
+  .school-head{padding-bottom:10px}
+  .school-logo{width:52px;height:52px;font-size:14px;margin-bottom:5px}
+  .school-head h1{font-size:21px}
+  .title{margin:10px 0}
+  .title h2{font-size:18px}
+  .info-grid{padding:9px 12px;margin-bottom:10px}
+  th,td{padding:7px 8px;font-size:10.5px}
+  .summary{margin-top:10px}
+  .sum{padding:9px;font-size:10px}
+  .sum strong{font-size:13px}
+  .signatures{margin-top:27px}
+  .footer{margin-top:14px}
+}
+</style>
+</head>
+<body>
+
+<div id="loading" class="loading">Loading Report Card...</div>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">ADPS</div>
+    <div>
+      <h1>AALOR DISHA PUBLIC SCHOOL</h1>
+      <p>Student Portal • Report Card</p>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="btn" onclick="location.href='student-dashboard.html'">Dashboard</button>
+    <button class="btn primary" id="downloadBtn">Download / Save PDF</button>
+    <button class="btn" id="logoutBtn">Logout</button>
+  </div>
+</header>
+
+<main class="container">
+  <div id="message" class="message"></div>
+
+  <section id="controls" class="controls">
+    <label for="examSelect">Select Report Card</label>
+    <select id="examSelect"></select>
+  </section>
+
+  <div id="emptyState" class="empty" style="display:none;">
+    No report card is available yet.
+  </div>
+
+  <section id="reportCard" class="report" style="display:none;">
+    <div class="school-head">
+      <div class="school-logo">ADPS</div>
+      <h1>AALOR DISHA PUBLIC SCHOOL</h1>
+      <p>Burakamat, West Bengal - 733134, India</p>
+    </div>
+
+    <div class="title">
+      <h2>STUDENT REPORT CARD</h2>
+      <p id="reportExam">—</p>
+    </div>
+
+    <div class="info-grid">
+      <div class="info">Student Name<strong id="studentName">—</strong></div>
+      <div class="info">Student ID<strong id="studentId">—</strong></div>
+      <div class="info">Class<strong id="className">—</strong></div>
+      <div class="info">Roll No.<strong id="rollNo">—</strong></div>
+      <div class="info">Academic Year<strong id="academicYear">—</strong></div>
+      <div class="info">Result Status<strong id="resultStatus">—</strong></div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Subject</th>
+          <th>Marks Obtained</th>
+          <th>Max Marks</th>
+          <th>Remarks</th>
+        </tr>
+      </thead>
+      <tbody id="marksBody"></tbody>
+    </table>
+
+    <div class="summary">
+      <div class="sum">Total Marks<strong id="totalMarks">—</strong></div>
+      <div class="sum">Percentage<strong id="percentage">—</strong></div>
+      <div class="sum">Grade<strong id="grade">—</strong></div>
+      <div class="sum">Result<strong id="result">—</strong></div>
+    </div>
+
+    <div class="signatures">
+      <div class="sign">Class Teacher</div>
+      <div class="sign">Parent / Guardian</div>
+      <div class="sign">Principal / Head Teacher</div>
+    </div>
+
+    <div class="footer">This report card is generated from the AALOR DISHA PUBLIC SCHOOL ERP Student Portal.</div>
+  </section>
+</main>
+
+<script>
+const SUPABASE_URL='https://zoickuxjrwjowhotzkue.supabase.co';
+const SUPABASE_KEY='sb_publishable__i970SfH3NT8Iv_CsIYsfg_v9It3loN';
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+let studentData=null;
+let resultGroups=[];
+let examMap={};
+let subjectMap={};
+
+const loading=document.getElementById('loading');
+const message=document.getElementById('message');
+const examSelect=document.getElementById('examSelect');
+const reportCard=document.getElementById('reportCard');
+const emptyState=document.getElementById('emptyState');
+
+function esc(v){
+  return String(v ?? '').replace(/[&<>"']/g,c=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+function showError(text){
+  message.textContent=text;
+  message.className='message error';
+}
+function gradeFromPct(p){
+  if(p>=90) return 'A+';
+  if(p>=80) return 'A';
+  if(p>=70) return 'B+';
+  if(p>=60) return 'B';
+  if(p>=50) return 'C';
+  if(p>=40) return 'D';
+  return 'F';
+}
+function displayClass(c){
+  if(!c) return '—';
+  return c.class_name + (c.section ? ' - '+c.section : '');
+}
+
+async function init(){
+  const {data:{session},error:sessionError}=await db.auth.getSession();
+  if(sessionError || !session){
+    location.href='student-login.html';
+    return;
+  }
+
+  const uid=session.user.id;
+
+  const {data:profile,error:profileError}=await db
+    .from('user_profiles')
+    .select('role,status,student_id')
+    .eq('user_id',uid)
+    .single();
+
+  if(profileError || !profile || profile.role!=='STUDENT' || profile.status!=='Active' || !profile.student_id){
+    await db.auth.signOut();
+    location.href='student-login.html';
+    return;
+  }
+
+  const {data:student,error:studentError}=await db
+    .from('students')
+    .select('student_id,student_name,class_id,roll_no,status')
+    .eq('student_id',profile.student_id)
+    .single();
+
+  if(studentError || !student){
+    showError('Student profile could not be loaded.');
+    loading.style.display='none';
+    return;
+  }
+
+  let classRow=null;
+  if(student.class_id){
+    const {data}=await db.from('classes')
+      .select('class_id,class_name,section,academic_year')
+      .eq('class_id',student.class_id)
+      .maybeSingle();
+    classRow=data;
+  }
+
+  studentData={...student,classRow};
+
+  const {data:rows,error:resultError}=await db
+    .from('student_results')
+    .select('result_id,exam_id,subject_id,marks_obtained,max_marks,remarks')
+    .eq('student_id',profile.student_id)
+    .order('exam_id',{ascending:false});
+
+  if(resultError){
+    showError('Report card data could not be loaded.');
+    loading.style.display='none';
+    return;
+  }
+
+  const records=rows || [];
+  if(!records.length){
+    emptyState.style.display='block';
+    document.getElementById('controls').style.display='none';
+    loading.style.display='none';
+    return;
+  }
+
+  const examIds=[...new Set(records.map(r=>r.exam_id).filter(Boolean))];
+  const subjectIds=[...new Set(records.map(r=>r.subject_id).filter(Boolean))];
+
+  const [{data:exams},{data:subjects}] = await Promise.all([
+    db.from('exams').select('exam_id,exam_name,academic_year,start_date,end_date,status').in('exam_id',examIds),
+    db.from('subjects').select('subject_id,subject_name').in('subject_id',subjectIds)
+  ]);
+
+  examMap=Object.fromEntries((exams||[]).map(x=>[x.exam_id,x]));
+  subjectMap=Object.fromEntries((subjects||[]).map(x=>[x.subject_id,x.subject_name]));
+
+  const grouped={};
+  records.forEach(r=>{
+    if(!grouped[r.exam_id]) grouped[r.exam_id]=[];
+    grouped[r.exam_id].push(r);
+  });
+
+  resultGroups=Object.entries(grouped).map(([examId,items])=>{
+    const exam=examMap[examId] || {};
+    const totalObtained=items.reduce((s,r)=>s+Number(r.marks_obtained||0),0);
+    const totalMax=items.reduce((s,r)=>s+Number(r.max_marks||0),0);
+    const pct=totalMax ? totalObtained/totalMax*100 : 0;
+    const pass=items.every(r=>Number(r.marks_obtained||0) >= Number(r.max_marks||0)*0.4);
+    return {
+      examId:Number(examId),
+      exam,
+      items,
+      totalObtained,
+      totalMax,
+      pct,
+      grade:gradeFromPct(pct),
+      result:pass?'PASS':'FAIL'
+    };
+  }).sort((a,b)=>b.examId-a.examId);
+
+  examSelect.innerHTML=resultGroups.map(g=>{
+    const name=g.exam.exam_name || 'Exam';
+    const year=g.exam.academic_year || '';
+    return `<option value="${g.examId}">${esc(name)}${year?' ('+esc(year)+')':''}</option>`;
+  }).join('');
+
+  examSelect.addEventListener('change',renderSelected);
+  renderSelected();
+  loading.style.display='none';
+}
+
+function renderSelected(){
+  const examId=Number(examSelect.value || resultGroups[0]?.examId);
+  const g=resultGroups.find(x=>x.examId===examId) || resultGroups[0];
+  if(!g) return;
+
+  const examName=g.exam.exam_name || 'Exam';
+  const academicYear=g.exam.academic_year || studentData.classRow?.academic_year || '—';
+
+  document.getElementById('reportExam').textContent=examName+' • '+academicYear;
+  document.getElementById('studentName').textContent=studentData.student_name || '—';
+  document.getElementById('studentId').textContent=studentData.student_id ?? '—';
+  document.getElementById('className').textContent=displayClass(studentData.classRow);
+  document.getElementById('rollNo').textContent=studentData.roll_no || '—';
+  document.getElementById('academicYear').textContent=academicYear;
+  document.getElementById('resultStatus').textContent=g.result;
+  document.getElementById('totalMarks').textContent=g.totalObtained+' / '+g.totalMax;
+  document.getElementById('percentage').textContent=g.pct.toFixed(2)+'%';
+  document.getElementById('grade').textContent=g.grade;
+  document.getElementById('result').textContent=g.result;
+
+  const rs=document.getElementById('resultStatus');
+  const r=document.getElementById('result');
+  rs.className=g.result==='PASS'?'status-pass':'status-fail';
+  r.className=g.result==='PASS'?'status-pass':'status-fail';
+
+  document.getElementById('marksBody').innerHTML=g.items.map(row=>`
+    <tr>
+      <td>${esc(subjectMap[row.subject_id] || ('Subject ID '+row.subject_id))}</td>
+      <td>${esc(row.marks_obtained ?? '—')}</td>
+      <td>${esc(row.max_marks ?? '—')}</td>
+      <td>${esc(row.remarks || '—')}</td>
+    </tr>
+  `).join('');
+
+  reportCard.style.display='block';
+}
+
+document.getElementById('downloadBtn').addEventListener('click',()=>{
+  window.print();
+});
+
+document.getElementById('logoutBtn').addEventListener('click',async()=>{
+  await db.auth.signOut();
+  sessionStorage.clear();
+  location.href='student-login.html';
+});
+
+init();
+</script>
+</body>
+</html>

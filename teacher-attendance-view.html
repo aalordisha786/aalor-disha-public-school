@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Attendance | AALOR DISHA PUBLIC SCHOOL</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+:root{--navy:#17385f;--navy2:#28557f;--bg:#f4f7fb;--border:#d9e4ef;--muted:#64748b}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:#172033}
+.top{height:62px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+.brand{display:flex;align-items:center;gap:10px}.logo{width:40px;height:40px;border-radius:50%;background:#fff;color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px}
+.brand strong{display:block;font-size:15px}.brand small{font-size:10px}
+.actions{display:flex;gap:8px}.actions button{background:transparent;border:1px solid #8ba4bd;color:#fff;border-radius:7px;padding:7px 11px;font-weight:700;cursor:pointer}
+main{max-width:950px;margin:26px auto;padding:0 16px}
+.hero{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-radius:15px;padding:22px;box-shadow:0 10px 26px rgba(23,56,95,.15)}
+.hero h1{font-size:22px;margin:0 0 5px}.hero p{margin:0;font-size:12px;color:#dce9f7}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}
+.stat{background:#fff;border:1px solid var(--border);border-radius:12px;padding:15px}
+.stat span{display:block;font-size:10px;color:var(--muted);margin-bottom:6px}.stat strong{font-size:22px;color:var(--navy)}
+.panel{background:#fff;border:1px solid var(--border);border-radius:15px;margin-top:16px;padding:20px;box-shadow:0 6px 18px rgba(15,23,42,.04)}
+.panel h2{margin:0 0 14px;color:var(--navy);font-size:17px}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:600px}
+th,td{padding:11px 10px;border-bottom:1px solid #e7edf4;text-align:left;font-size:12px}
+th{background:#f7fafc;color:#4b5e73;font-size:11px}
+.badge{display:inline-block;padding:5px 8px;border-radius:18px;font-size:10px;font-weight:700;background:#eef2f7}
+.badge.present{background:#ecfdf3;color:#166534}.badge.absent{background:#fff1f2;color:#b91c1c}.badge.leave{background:#fff8e7;color:#92400e}
+.empty{text-align:center;padding:28px;color:var(--muted);font-size:12px}
+.error{display:none;margin-top:15px;padding:11px;background:#fff1f2;color:#b91c1c;border:1px solid #fecaca;border-radius:8px;font-size:12px}
+.loading{position:fixed;inset:0;background:rgba(244,247,251,.95);display:flex;align-items:center;justify-content:center;color:var(--navy);font-weight:700;z-index:10}
+footer{text-align:center;color:#8291a4;font-size:11px;margin-top:22px}
+@media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}.top{padding:0 10px}.brand strong{font-size:12px}.actions button{font-size:10px;padding:6px 8px}}
+</style>
+</head>
+<body>
+<div id="loading" class="loading">Loading attendance...</div>
+<header class="top">
+ <div class="brand"><div class="logo">ADPS</div><div><strong>AALOR DISHA PUBLIC SCHOOL</strong><small>Teacher Portal • My Attendance</small></div></div>
+ <div class="actions"><button onclick="location.href='teacher-dashboard.html'">Dashboard</button><button id="logout">Logout</button></div>
+</header>
+
+<main>
+ <section class="hero"><h1 id="title">My Attendance</h1><p>Only your own saved attendance records are shown here.</p></section>
+ <div id="error" class="error"></div>
+
+ <section class="stats">
+  <div class="stat"><span>Total Marked Days</span><strong id="total">0</strong></div>
+  <div class="stat"><span>Present</span><strong id="present">0</strong></div>
+  <div class="stat"><span>Absent</span><strong id="absent">0</strong></div>
+  <div class="stat"><span>Attendance %</span><strong id="pct">0.0%</strong></div>
+ </section>
+
+ <section class="panel">
+  <h2>Attendance History</h2>
+  <div class="table-wrap">
+   <table>
+    <thead><tr><th>Date</th><th>Status</th><th>Remarks</th></tr></thead>
+    <tbody id="body"></tbody>
+   </table>
+   <div id="empty" class="empty" style="display:none">No attendance records found yet.</div>
+  </div>
+ </section>
+ <footer>AALOR DISHA PUBLIC SCHOOL • Teacher ERP Portal</footer>
+</main>
+
+<script>
+const db=supabase.createClient(
+ 'https://zoickuxjrwjowhotzkue.supabase.co',
+ 'sb_publishable__i970SfH3NT8Iv_CsIYsfg_v9It3loN'
+);
+const loading=document.getElementById('loading');
+const errorBox=document.getElementById('error');
+
+function fmtDate(v){
+ if(!v)return '—';
+ const d=new Date(v+'T00:00:00');
+ return isNaN(d)?v:d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+}
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function fail(msg){errorBox.textContent=msg;errorBox.style.display='block';loading.style.display='none'}
+
+async function init(){
+ const {data:{session}}=await db.auth.getSession();
+ if(!session){location.href='teacher-login.html';return}
+
+ const {data:p,error:pe}=await db.from('user_profiles')
+  .select('role,status,teacher_id').eq('user_id',session.user.id).single();
+
+ if(pe||!p||p.role!=='TEACHER'||p.status!=='Active'||!p.teacher_id){
+  await db.auth.signOut();location.href='teacher-login.html';return;
+ }
+
+ const {data:t}=await db.from('teachers').select('teacher_name').eq('teacher_id',p.teacher_id).maybeSingle();
+ if(t?.teacher_name) document.getElementById('title').textContent=t.teacher_name+' - My Attendance';
+
+ const {data:rows,error:ae}=await db.from('teacher_attendance')
+  .select('attendance_date,attendance_status,remarks')
+  .eq('teacher_id',p.teacher_id)
+  .order('attendance_date',{ascending:false});
+
+ if(ae){fail('Attendance could not be loaded. Teacher attendance permission may need to be enabled.');return}
+
+ const rec=rows||[];
+ const present=rec.filter(r=>String(r.attendance_status).toLowerCase()==='present').length;
+ const absent=rec.filter(r=>String(r.attendance_status).toLowerCase()==='absent').length;
+ const total=rec.length;
+ const pct=total?((present/total)*100).toFixed(1):'0.0';
+
+ document.getElementById('total').textContent=total;
+ document.getElementById('present').textContent=present;
+ document.getElementById('absent').textContent=absent;
+ document.getElementById('pct').textContent=pct+'%';
+
+ const tbody=document.getElementById('body');
+ const empty=document.getElementById('empty');
+ if(!rec.length){empty.style.display='block';tbody.innerHTML=''}
+ else{
+  tbody.innerHTML=rec.map(r=>{
+   const status=String(r.attendance_status||'');
+   return `<tr><td>${esc(fmtDate(r.attendance_date))}</td><td><span class="badge ${esc(status.toLowerCase())}">${esc(status||'—')}</span></td><td>${esc(r.remarks||'—')}</td></tr>`;
+  }).join('');
+ }
+ loading.style.display='none';
+}
+
+document.getElementById('logout').onclick=async()=>{
+ await db.auth.signOut();sessionStorage.clear();location.href='teacher-login.html';
+};
+init();
+</script>
+</body>
+</html>
